@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { usePractice } from '@/store/PracticeContext'
@@ -8,7 +8,7 @@ import {
   ErrorCategory,
   ERROR_CATEGORY_LABELS
 } from '@/types'
-import { getResultErrorCategories } from '@/utils/scorer'
+import { getResultErrorCategories, generateTrainingReport } from '@/utils/scorer'
 import ResultView from '@/components/ResultView'
 import styles from './index.module.scss'
 import classnames from 'classnames'
@@ -26,15 +26,31 @@ interface Filters {
 }
 
 const RecordsPage: React.FC = () => {
-  const { state } = usePractice()
+  const { state, recordsFilter, setRecordsFilter } = usePractice()
   const { records, tasks } = state
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'records' | 'weakpoints'>('records')
   const [filters, setFilters] = useState<Filters>({
     taskId: 'all',
     passed: 'all',
     errorCategories: []
   })
   const [showFilters, setShowFilters] = useState(false)
+  const [filterInitialized, setFilterInitialized] = useState(false)
+
+  useEffect(() => {
+    if (recordsFilter && (recordsFilter.taskId !== 'all' || recordsFilter.errorCategories.length > 0)) {
+      setFilters(prev => ({
+        ...prev,
+        taskId: recordsFilter.taskId,
+        errorCategories: recordsFilter.errorCategories
+      }))
+      if (recordsFilter.errorCategories.length > 0) {
+        setShowFilters(true)
+      }
+    }
+    setFilterInitialized(true)
+  }, [recordsFilter])
 
   const summary = useMemo(() => {
     const total = records.length
@@ -46,6 +62,29 @@ const RecordsPage: React.FC = () => {
     const avgDuration = Math.round(records.reduce((s, r) => s + r.duration, 0) / total)
     return { total, passed, avgScore, avgDuration }
   }, [records])
+
+  const weakPointsAnalysis = useMemo(() => {
+    if (records.length === 0) {
+      return { topCategories: [], relatedTasks: {} as Record<ErrorCategory, string[]> }
+    }
+
+    const report = generateTrainingReport(records, tasks, 0)
+    const topCategories = report.topErrors.slice(0, 3)
+
+    const relatedTasks: Record<ErrorCategory, string[]> = {} as Record<ErrorCategory, string[]>
+    topCategories.forEach(item => {
+      const taskSet = new Set<string>()
+      records.forEach(record => {
+        const allErrors = [...record.borrowErrors, ...record.returnErrors]
+        if (allErrors.some(e => e.category === item.category)) {
+          taskSet.add(record.taskId)
+        }
+      })
+      relatedTasks[item.category] = Array.from(taskSet)
+    })
+
+    return { topCategories, relatedTasks }
+  }, [records, tasks])
 
   const filteredRecords = useMemo(() => {
     return records.filter(record => {
@@ -106,6 +145,35 @@ const RecordsPage: React.FC = () => {
     filters.taskId !== 'all' ||
     filters.passed !== 'all' ||
     filters.errorCategories.length > 0
+
+  const handleWeakPointClick = (category: ErrorCategory) => {
+    setFilters(prev => ({ ...prev, errorCategories: [category], taskId: 'all' }))
+    setShowFilters(true)
+    setActiveTab('records')
+    setRecordsFilter({ taskId: 'all', errorCategories: [category] })
+  }
+
+  const handlePracticeTask = (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId)
+    if (task) {
+      Taro.switchTab({ url: '/pages/tasks/index' })
+    }
+  }
+
+  const getCategoryIcon = (category: ErrorCategory): string => {
+    const iconMap: Record<ErrorCategory, string> = {
+      missing_serial_no: '🔢',
+      missing_airworthiness_tag: '📋',
+      missing_disassembly_record: '📝',
+      missing_work_card_no: '📑',
+      missing_repair_tag: '🏷️',
+      wrong_part_status: '🔴',
+      incomplete_accessories: '🔧',
+      format_error: '⚠️',
+      other: '❓'
+    }
+    return iconMap[category] || '❓'
+  }
 
   const renderEmpty = () => (
     <View className={styles.emptyState}>
@@ -305,17 +373,38 @@ const RecordsPage: React.FC = () => {
             </View>
           </View>
         </View>
+
+        <View className={styles.tabBar}>
+          <View
+            className={classnames(styles.tabItem, activeTab === 'records' && styles.tabItemActive)}
+            onClick={() => setActiveTab('records')}
+          >
+            <Text className={classnames(styles.tabText, activeTab === 'records' && styles.tabTextActive)}>
+              📜 历史记录
+            </Text>
+          </View>
+          <View
+            className={classnames(styles.tabItem, activeTab === 'weakpoints' && styles.tabItemActive)}
+            onClick={() => setActiveTab('weakpoints')}
+          >
+            <Text className={classnames(styles.tabText, activeTab === 'weakpoints' && styles.tabTextActive)}>
+              🎯 个人薄弱项
+            </Text>
+          </View>
+        </View>
       </View>
 
-      <View className={styles.sectionHeader}>
-        <Text className={styles.sectionTitle}>
-          历史练习记录
-          {hasActiveFilters && (
-            <Text className={styles.sectionFilterHint}>（筛选后）</Text>
-          )}
-        </Text>
-        <Text className={styles.sectionCount}>共 {filteredRecords.length} / {records.length} 条</Text>
-      </View>
+      {activeTab === 'records' && (
+        <>
+          <View className={styles.sectionHeader}>
+            <Text className={styles.sectionTitle}>
+              历史练习记录
+              {hasActiveFilters && (
+                <Text className={styles.sectionFilterHint}>（筛选后）</Text>
+              )}
+            </Text>
+            <Text className={styles.sectionCount}>共 {filteredRecords.length} / {records.length} 条</Text>
+          </View>
 
       <View className={styles.recordList}>
         {filteredRecords.length === 0 ? (
@@ -430,6 +519,101 @@ const RecordsPage: React.FC = () => {
           })
         )}
       </View>
+        </>
+      )}
+
+      {activeTab === 'weakpoints' && (
+        <View className={styles.weakPointsSection}>
+          <View className={styles.sectionHeader}>
+            <Text className={styles.sectionTitle}>个人薄弱项 TOP3</Text>
+            <Text className={styles.sectionSub}>点击查看相关记录和任务</Text>
+          </View>
+
+          {weakPointsAnalysis.topCategories.length === 0 ? (
+            <View className={styles.emptyState}>
+              <View className={styles.emptyIcon}>
+                <Text className={styles.emptyIconText}>🎉</Text>
+              </View>
+              <Text className={styles.emptyTitle}>暂无薄弱项</Text>
+              <Text className={styles.emptyDesc}>多练习几次，系统会自动分析你的薄弱环节</Text>
+              <View className={styles.practiceBtn} onClick={handleGoToPractice}>
+                <Text className={styles.practiceBtnText}>去练习</Text>
+              </View>
+            </View>
+          ) : (
+            <View className={styles.weakPointList}>
+              {weakPointsAnalysis.topCategories.map((item, index) => {
+                const taskIds = weakPointsAnalysis.relatedTasks[item.category] || []
+                const relatedTaskList = tasks.filter(t => taskIds.includes(t.id))
+
+                return (
+                  <View key={item.category} className={styles.weakPointCard}>
+                    <View className={styles.weakPointCardHeader}>
+                      <View className={styles.weakPointRank}>
+                        <Text className={styles.weakPointRankText}>{index + 1}</Text>
+                      </View>
+                      <View className={styles.weakPointIcon}>
+                        <Text className={styles.weakPointIconText}>{getCategoryIcon(item.category)}</Text>
+                      </View>
+                      <View className={styles.weakPointInfo}>
+                        <Text className={styles.weakPointName}>{ERROR_CATEGORY_LABELS[item.category]}</Text>
+                        <Text className={styles.weakPointCount}>
+                          出现 {item.count} 次 · 涉及 {item.relatedTaskIds.length} 个任务
+                        </Text>
+                      </View>
+                      <View
+                        className={classnames(
+                          styles.weakPointSeverity,
+                          item.severity === 'critical' && styles.severityCritical,
+                          item.severity === 'warning' && styles.severityWarning,
+                          item.severity === 'info' && styles.severityInfo
+                        )}
+                      >
+                        <Text className={styles.weakPointSeverityText}>
+                          {item.severity === 'critical' ? '高危' : item.severity === 'warning' ? '需关注' : '需改进'}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <Text className={styles.weakPointSuggestion}>💡 {item.suggestion}</Text>
+
+                    <View className={styles.weakPointActions}>
+                      <View
+                        className={styles.weakPointActionBtn}
+                        onClick={() => handleWeakPointClick(item.category)}
+                      >
+                        <Text className={styles.weakPointActionText}>查看相关记录</Text>
+                      </View>
+                    </View>
+
+                    {relatedTaskList.length > 0 && (
+                      <View className={styles.weakPointRelated}>
+                        <Text className={styles.weakPointRelatedTitle}>相关任务：</Text>
+                        <View className={styles.weakPointTaskList}>
+                          {relatedTaskList.slice(0, 3).map(task => (
+                            <View
+                              key={task.id}
+                              className={styles.weakPointTaskItem}
+                              onClick={() => {
+                                setRecordsFilter({ taskId: task.id, errorCategories: [item.category] })
+                                setActiveTab('records')
+                              }}
+                            >
+                              <Text className={styles.weakPointTaskText}>{task.title}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    )}
+                  </View>
+                )
+              })}
+            </View>
+          )}
+
+          <View style={{ height: '48rpx' }} />
+        </View>
+      )}
     </ScrollView>
   )
 }

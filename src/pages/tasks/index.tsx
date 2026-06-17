@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { Task, TaskStatus, TrainingReport } from '@/types'
+import { Task, TaskStatus, ErrorCategory } from '@/types'
 import { usePractice } from '@/store/PracticeContext'
-import { generateTrainingReport, getTaskStats } from '@/utils/scorer'
+import { getTaskStats } from '@/utils/scorer'
 import TaskCard from '@/components/TaskCard'
 import TrainingReportView from '@/components/TrainingReportView'
 import styles from './index.module.scss'
@@ -21,7 +21,7 @@ const filterOptions: { value: FilterType; label: string }[] = [
 const TasksPage: React.FC = () => {
   const [filter, setFilter] = useState<FilterType>('all')
   const [showReport, setShowReport] = useState(false)
-  const { selectTask, state } = usePractice()
+  const { selectTask, state, setRecordsFilter } = usePractice()
   const { tasks, records } = state
 
   const filteredTasks = useMemo(() => {
@@ -38,11 +38,6 @@ const TasksPage: React.FC = () => {
       : 0
     return { total, completed, records: recordCount, avgScore }
   }, [tasks, records])
-
-  const trainingReport = useMemo<TrainingReport | null>(() => {
-    if (records.length === 0) return null
-    return generateTrainingReport(records, tasks, 7)
-  }, [records, tasks])
 
   const handleStartPractice = (task: Task) => {
     console.log('[Tasks] 开始练习:', task.id, task.title)
@@ -62,10 +57,34 @@ const TasksPage: React.FC = () => {
 
   const handleViewHistory = (task: Task) => {
     console.log('[Tasks] 查看历史:', task.id, task.title)
-    selectTask(task)
+    setRecordsFilter({ taskId: task.id, errorCategories: [] })
     Taro.switchTab({
       url: '/pages/records/index'
     })
+  }
+
+  const handleViewErrorDetail = (category: ErrorCategory) => {
+    console.log('[Tasks] 查看错误详情:', category)
+    setRecordsFilter({ taskId: 'all', errorCategories: [category] })
+    setShowReport(false)
+    Taro.switchTab({
+      url: '/pages/records/index'
+    })
+  }
+
+  const handleRetryTaskFromReport = (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId)
+    if (task) {
+      setShowReport(false)
+      handleRetry(task)
+    }
+  }
+
+  const handleViewTaskHistoryFromReport = (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId)
+    if (task) {
+      handleViewHistory(task)
+    }
   }
 
   const handleCardClick = (task: Task) => {
@@ -125,7 +144,7 @@ const TasksPage: React.FC = () => {
           </View>
         </View>
 
-        {trainingReport && (
+        {records.length > 0 && (
           <View className={styles.reportEntry} onClick={() => setShowReport(true)}>
             <View className={styles.reportEntryLeft}>
               <View className={styles.reportEntryIcon}>
@@ -134,7 +153,7 @@ const TasksPage: React.FC = () => {
               <View className={styles.reportEntryText}>
                 <Text className={styles.reportEntryTitle}>训练报告</Text>
                 <Text className={styles.reportEntrySub}>
-                  近7天：{trainingReport.topErrors.length}个高频错误 · {trainingReport.recommendedTasks.length}个建议复练
+                  查看近7天和全部历史训练数据，发现薄弱环节，推荐复练任务
                 </Text>
               </View>
             </View>
@@ -183,22 +202,14 @@ const TasksPage: React.FC = () => {
         )}
       </View>
 
-      {showReport && trainingReport && (
+      {showReport && records.length > 0 && (
         <TrainingReportView
-          report={trainingReport}
+          records={records}
+          tasks={tasks}
           onClose={() => setShowReport(false)}
-          onRetryTask={(taskId) => {
-            const task = tasks.find(t => t.id === taskId)
-            if (task) {
-              handleRetry(task)
-            }
-          }}
-          onViewTaskHistory={(taskId) => {
-            const task = tasks.find(t => t.id === taskId)
-            if (task) {
-              handleViewHistory(task)
-            }
-          }}
+          onRetryTask={handleRetryTaskFromReport}
+          onViewTaskHistory={handleViewTaskHistoryFromReport}
+          onViewErrorDetail={handleViewErrorDetail}
         />
       )}
     </ScrollView>

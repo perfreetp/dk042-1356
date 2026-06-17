@@ -587,3 +587,383 @@
   color: $color-error;
   font-weight: $font-weight-medium;
 }
+
+.tabBar {
+  display: flex;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: 6rpx;
+  margin-top: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.tabItem {
+  flex: 1;
+  padding: $spacing-sm;
+  border-radius: $radius-md;
+  @include flex-center;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.tabItemActive {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  box-shadow: 0 4rpx 12rpx rgba(16, 185, 129, 0.3);
+}
+
+.tabText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+}
+
+.tabTextActive {
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}
+
+.sectionSub {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.weakPointsSection {
+  padding: 0 $page-padding;
+}
+
+.weakPointList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.weakPointCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.weakPointCardHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.weakPointRank {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  background: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+  @include flex-center;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.weakPointRankText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+}
+
+.weakPointIcon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-md;
+  background: #FFFBEB;
+  @include flex-center;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.weakPointIconText {
+  font-size: 32rpx;
+}
+
+.weakPointInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.weakPointName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.weakPointCount {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.weakPointSeverity {
+  padding: 6rpx 16rpx;
+  border-radius: $radius-xs;
+  margin-left: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.severityCritical {
+  background: rgba(239, 68, 68, 0.1);
+  .weakPointSeverityText {
+    color: $color-error;
+  }
+}
+
+.severityWarning {
+  background: rgba(245, 158, 11, 0.1);
+  .weakPointSeverityText {
+    color: #F59E0B;
+  }
+}
+
+.severityInfo {
+  background: rgba(14, 165, 233, 0.1);
+  .weakPointSeverityText {
+    color: $color-accent;
+  }
+}
+
+.weakPointSeverityText {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+}
+
+.weakPointSuggestion {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.6;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.weakPointActions {
+  margin-bottom: $spacing-md;
+}
+
+.weakPointActionBtn {
+  display: inline-flex;
+  padding: $spacing-xs $spacing-lg;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: $radius-button;
+
+  &:active {
+    background: rgba(16, 185, 129, 0.2);
+  }
+}
+
+.weakPointActionText {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+}
+
+.weakPointRelated {
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.weakPointRelatedTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+  display: block;
+  margin-bottom: $spacing-sm;
+}
+
+.weakPointTaskList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+}
+
+.weakPointTaskItem {
+  padding: 8rpx 20rpx;
+  background: $color-bg-page;
+  border-radius: $radius-button;
+
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.weakPointTaskText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.chipScroll {
+  white-space: nowrap;
+}
+
+.chipList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+}
+
+.chip {
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-button;
+  background: $color-bg-page;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+  display: inline-flex;
+  align-items: center;
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.chipActive {
+  background: rgba(14, 165, 233, 0.1);
+  border-color: $color-accent;
+}
+
+.chipSuccess {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: $color-success;
+}
+
+.chipDanger {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: $color-error;
+}
+
+.chipWarning {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: #F59E0B;
+}
+
+.chipText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.chipActive .chipText,
+.chipSuccess .chipText,
+.chipDanger .chipText,
+.chipWarning .chipText {
+  font-weight: $font-weight-semibold;
+}
+
+.chipActive .chipText {
+  color: $color-accent;
+}
+
+.chipSuccess .chipText {
+  color: $color-success;
+}
+
+.chipDanger .chipText {
+  color: $color-error;
+}
+
+.chipWarning .chipText {
+  color: #F59E0B;
+}
+
+.filterToggle {
+  padding: $spacing-xs $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-button;
+  position: relative;
+}
+
+.filterToggleText {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+}
+
+.filterBadge {
+  position: absolute;
+  top: -8rpx;
+  right: -8rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  border-radius: $radius-round;
+  background: $color-error;
+  color: $color-text-white;
+  font-size: 18rpx;
+  font-weight: $font-weight-bold;
+  @include flex-center;
+  padding: 0 8rpx;
+}
+
+.headerRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: $spacing-lg;
+}
+
+.clearFiltersRow {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.clearBtn {
+  padding: $spacing-sm $spacing-lg;
+  background: $color-bg-page;
+  border-radius: $radius-button;
+  display: inline-block;
+
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.clearBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.recordTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  margin-bottom: $spacing-md;
+}
+
+.recordTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6rpx 16rpx;
+  border-radius: $radius-xs;
+  background: $color-bg-tag-red;
+}
+
+.recordTagHighlight {
+  background: rgba(14, 165, 233, 0.15);
+  border: 1rpx solid $color-accent;
+}
+
+.recordTagText {
+  font-size: 20rpx;
+  color: $color-error;
+  font-weight: $font-weight-medium;
+}
+
+.recordTagHighlight .recordTagText {
+  color: $color-accent;
+}
+
+.recordCardHighlight {
+  border: 2rpx solid $color-accent;
+  box-shadow: 0 0 0 4rpx rgba(14, 165, 233, 0.1);
+}
+
+.sectionFilterHint {
+  font-size: $font-size-sm;
+  color: $color-accent;
+  margin-left: $spacing-xs;
+  font-weight: $font-weight-medium;
+}

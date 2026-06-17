@@ -2,6 +2,7 @@ import React, { createContext, useContext, useReducer, useEffect, ReactNode } fr
 import Taro from '@tarojs/taro'
 import { PracticeState, PracticeAction, Task, BorrowForm, ReturnForm, FieldError } from '@/types'
 import { mockTasks, mockRecords } from '@/data/mockData'
+import { migrateAllRecords } from '@/utils/scorer'
 
 const STORAGE_KEYS = {
   RECORDS: 'amt_records_v1',
@@ -35,7 +36,7 @@ const loadFromStorage = <T,>(key: string, fallback: T): T => {
   return fallback
 }
 
-const saveToStorage = <T,>(key: string, value: T) => {
+const saveToStorage = <T>(key: string, value: T) => {
   try {
     Taro.setStorageSync(key, JSON.stringify(value))
   } catch (err) {
@@ -43,10 +44,21 @@ const saveToStorage = <T,>(key: string, value: T) => {
   }
 }
 
-const persistedRecords = loadFromStorage(STORAGE_KEYS.RECORDS, mockRecords)
+const mergeHistoricalErrors = (existing: FieldError[], newErrors: FieldError[]): FieldError[] => {
+  const merged = [...existing]
+  newErrors.forEach(err => {
+    const exists = merged.some(e => e.field === err.field && e.category === err.category)
+    if (!exists) {
+      merged.push(err)
+    }
+  })
+  return merged
+}
+
+const persistedRecords = migrateAllRecords(loadFromStorage(STORAGE_KEYS.RECORDS, mockRecords))
 const persistedTasks = loadFromStorage(STORAGE_KEYS.TASKS, mockTasks)
 
-const initialState: PracticeState & { tasks: Task[]; historicalBorrowErrors: FieldError[] } = {
+const initialState: PracticeState & { tasks: Task[]; historicalBorrowErrors: FieldError[]; historicalReturnErrors: FieldError[] } = {
   tasks: persistedTasks,
   currentTask: null,
   stage: 'idle',
@@ -55,12 +67,13 @@ const initialState: PracticeState & { tasks: Task[]; historicalBorrowErrors: Fie
   borrowErrors: [],
   returnErrors: [],
   historicalBorrowErrors: [],
+  historicalReturnErrors: [],
   currentResult: null,
   startTime: 0,
   records: persistedRecords
 }
 
-type ExtendedState = PracticeState & { tasks: Task[]; historicalBorrowErrors: FieldError[] }
+type ExtendedState = PracticeState & { tasks: Task[]; historicalBorrowErrors: FieldError[]; historicalReturnErrors: FieldError[] }
 type ExtendedAction =
   | PracticeAction
   | { type: 'UPDATE_TASKS'; payload: Task[] }
@@ -87,6 +100,7 @@ function practiceReducer(
         borrowErrors: [],
         returnErrors: [],
         historicalBorrowErrors: [],
+        historicalReturnErrors: [],
         currentResult: null,
         startTime: Date.now()
       }
@@ -106,24 +120,24 @@ function practiceReducer(
 
     case 'VALIDATE_BORROW': {
       const hasErrors = action.payload.length > 0
+      const newHistoricalBorrowErrors = hasErrors
+        ? mergeHistoricalErrors(state.historicalBorrowErrors, action.payload)
+        : state.historicalBorrowErrors
       return {
         ...state,
         borrowErrors: action.payload,
+        historicalBorrowErrors: newHistoricalBorrowErrors,
         stage: hasErrors ? 'confirm_borrow' : 'return'
       }
     }
 
     case 'CONFIRM_BORROW': {
-      const { keepErrors } = action.payload
       return {
         ...state,
         stage: 'return',
         returnForm: { ...initialReturnForm },
         returnErrors: [],
-        historicalBorrowErrors: keepErrors
-          ? [...state.historicalBorrowErrors, ...state.borrowErrors]
-          : state.historicalBorrowErrors,
-        borrowErrors: keepErrors ? state.borrowErrors : []
+        borrowErrors: state.borrowErrors
       }
     }
 
@@ -141,10 +155,21 @@ function practiceReducer(
 
     case 'VALIDATE_RETURN': {
       const hasErrors = action.payload.length > 0
+      const newHistoricalReturnErrors = hasErrors
+        ? mergeHistoricalErrors(state.historicalReturnErrors, action.payload)
+        : state.historicalReturnErrors
       return {
         ...state,
         returnErrors: action.payload,
+        historicalReturnErrors: newHistoricalReturnErrors,
         stage: hasErrors ? 'confirm_return' : 'scoring'
+      }
+    }
+
+    case 'CONFIRM_RETURN': {
+      return {
+        ...state,
+        stage: 'scoring'
       }
     }
 
@@ -201,6 +226,7 @@ function practiceReducer(
         borrowErrors: [],
         returnErrors: [],
         historicalBorrowErrors: [],
+        historicalReturnErrors: [],
         currentResult: null,
         startTime: 0
       }
@@ -214,9 +240,16 @@ function practiceReducer(
   }
 }
 
+interface RecordsFilter {
+  taskId: string | 'all'
+  errorCategories: ErrorCategory[]
+}
+
 interface PracticeContextValue {
   state: ExtendedState
   dispatch: React.Dispatch<ExtendedAction>
+  recordsFilter: RecordsFilter
+  setRecordsFilter: (filter: RecordsFilter) => void
   selectTask: (task: Task) => void
   updateBorrow: (form: Partial<BorrowForm>) => void
   updateReturn: (form: Partial<ReturnForm>) => void
@@ -233,6 +266,10 @@ const PracticeContext = createContext<PracticeContextValue | undefined>(undefine
 
 export const PracticeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(practiceReducer, initialState)
+  const [recordsFilter, setRecordsFilter] = React.useState<RecordsFilter>({
+    taskId: 'all',
+    errorCategories: []
+  })
 
   useEffect(() => {
     console.log('[PracticeProvider] 已加载持久化数据:', {
@@ -285,6 +322,8 @@ export const PracticeProvider: React.FC<{ children: ReactNode }> = ({ children }
       value={{
         state,
         dispatch,
+        recordsFilter,
+        setRecordsFilter,
         selectTask,
         updateBorrow,
         updateReturn,

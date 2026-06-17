@@ -443,85 +443,136 @@ export const generateTrainingReport = (
   const now = new Date()
   const cutoffTime = now.getTime() - periodDays * 24 * 60 * 60 * 1000
 
-  const recentRecords = records.filter(r => {
-    const recordTime = new Date(r.completedAt).getTime()
-    return recordTime >= cutoffTime
-  })
+  const periodRecords = periodDays === 0
+    ? records
+    : records.filter(r => {
+        const recordTime = new Date(r.completedAt).getTime()
+        return recordTime >= cutoffTime
+      })
 
-  const totalPractice = recentRecords.length
-  const totalPassed = recentRecords.filter(r => r.passed).length
-  const avgScore =
-    totalPractice > 0
-      ? Math.round(recentRecords.reduce((s, r) => s + r.passRate, 0) / totalPractice)
+  const totalPractices = periodRecords.length
+  const totalPassed = periodRecords.filter(r => r.passed).length
+  const overallPassRate =
+    totalPractices > 0
+      ? Math.round(periodRecords.reduce((s, r) => s + r.passRate, 0) / totalPractices)
       : 0
 
+  const uniqueTaskIds = new Set(periodRecords.map(r => r.taskId))
+  const uniqueTasksPracticed = uniqueTaskIds.size
+
+  let totalErrors = 0
   const errorCounts: Record<string, { count: number; taskIds: Set<string> }> = {}
-  recentRecords.forEach(record => {
+
+  periodRecords.forEach(record => {
     const allErrors = [...record.borrowErrors, ...record.returnErrors]
+    totalErrors += allErrors.length
     allErrors.forEach(error => {
-      if (!errorCounts[error.category]) {
-        errorCounts[error.category] = { count: 0, taskIds: new Set() }
+      const cat = error.category || 'other'
+      if (!errorCounts[cat]) {
+        errorCounts[cat] = { count: 0, taskIds: new Set() }
       }
-      errorCounts[error.category].count++
-      errorCounts[error.category].taskIds.add(record.taskId)
+      errorCounts[cat].count++
+      errorCounts[cat].taskIds.add(record.taskId)
     })
   })
 
-  const topErrors: ErrorFrequencyItem[] = Object.entries(errorCounts)
+  const sortedErrors = Object.entries(errorCounts)
     .map(([category, data]) => ({
       category: category as ErrorCategory,
       count: data.count,
-      label: '',
+      label: ERROR_CATEGORY_LABELS[category as ErrorCategory] || category,
       relatedTaskIds: Array.from(data.taskIds)
     }))
     .sort((a, b) => b.count - a.count)
-    .slice(0, 5)
 
-  topErrors.forEach(item => {
-    const errorLabels: Record<string, string> = {
-      missing_serial_no: '漏填序号',
-      missing_airworthiness_tag: '适航标签',
-      missing_disassembly_record: '拆装记录',
-      missing_work_card_no: '工卡号',
-      missing_repair_tag: '待修牌',
-      wrong_part_status: '状态判定错误',
-      incomplete_accessories: '附件不齐套',
-      format_error: '格式错误',
-      other: '其他错误'
+  const topErrors: ErrorFrequencyItem[] = sortedErrors.slice(0, 5).map(item => {
+    let severity: 'critical' | 'warning' | 'info' = 'info'
+    if (item.count >= 5) severity = 'critical'
+    else if (item.count >= 3) severity = 'warning'
+
+    const suggestions: Record<ErrorCategory, string> = {
+      missing_serial_no: '重点练习序号录入，记住一物一号，仔细核对实物铭牌',
+      missing_airworthiness_tag: '加强适航标签识别训练，装机件必须有 FAA/EASA/CAAC 标签',
+      missing_disassembly_record: '高价值周转件归还时注意检查拆装记录是否齐全',
+      missing_work_card_no: '工卡号格式为 WC-YYYYMMDD-XXX，录入前先确认格式',
+      missing_repair_tag: '待修件必须挂红色 AOG 待修牌，防止误用',
+      wrong_part_status: '结合故障描述判断件状态：可用/不可用/待修/报废',
+      incomplete_accessories: '归还前对照附件清单逐一核对，特别是封圈、螺栓等小件',
+      format_error: '注意录入格式规范，件号序号都有标准格式',
+      other: '仔细阅读题目要求，按流程逐步操作'
     }
-    item.label = errorLabels[item.category] || item.category
+
+    return {
+      ...item,
+      severity,
+      suggestion: suggestions[item.category] || '继续加强练习'
+    }
   })
 
   const weakCategories = topErrors
     .filter(e => e.count >= 2)
     .map(e => e.category)
 
-  const taskErrorCounts: Record<string, number> = {}
-  recentRecords.forEach(record => {
-    const errorCount = record.borrowErrors.length + record.returnErrors.length
-    taskErrorCounts[record.taskId] = (taskErrorCounts[record.taskId] || 0) + errorCount
+  const weakPoints: WeakPoint[] = []
+  if (weakCategories.includes('missing_serial_no') || weakCategories.includes('format_error')) {
+    weakPoints.push({
+      title: '实物标识识别能力不足',
+      description: '对件号、序号的录入和核对不熟练，容易漏填或填错，影响周转件追溯性',
+      relatedCategories: ['missing_serial_no', 'format_error']
+    })
+  }
+  if (weakCategories.includes('missing_airworthiness_tag') || weakCategories.includes('missing_disassembly_record')) {
+    weakPoints.push({
+      title: '适航与履历管理意识薄弱',
+      description: '对适航标签、拆装记录等法定文件的重要性认识不足，容易遗漏检查',
+      relatedCategories: ['missing_airworthiness_tag', 'missing_disassembly_record', 'missing_work_card_no']
+    })
+  }
+  if (weakCategories.includes('missing_repair_tag') || weakCategories.includes('wrong_part_status')) {
+    weakPoints.push({
+      title: '状态判定与标识管理需加强',
+      description: '拆下件状态判断不准，待修牌使用不规范，可能导致错装误用',
+      relatedCategories: ['missing_repair_tag', 'wrong_part_status']
+    })
+  }
+  if (weakCategories.includes('incomplete_accessories')) {
+    weakPoints.push({
+      title: '附件齐套检查不细致',
+      description: '归还时附件核对不仔细，缺少小件会影响下次装机使用',
+      relatedCategories: ['incomplete_accessories']
+    })
+  }
+  if (weakPoints.length === 0 && topErrors.length > 0) {
+    weakPoints.push({
+      title: '操作规范性有待提升',
+      description: '偶有小错误出现，建议按标准流程逐步操作，不要跳步',
+      relatedCategories: weakCategories.length > 0 ? weakCategories : ['other']
+    })
+  }
+
+  const taskStatsMap: Record<string, { count: number; totalScore: number; errorCount: number }> = {}
+  periodRecords.forEach(record => {
+    if (!taskStatsMap[record.taskId]) {
+      taskStatsMap[record.taskId] = { count: 0, totalScore: 0, errorCount: 0 }
+    }
+    taskStatsMap[record.taskId].count++
+    taskStatsMap[record.taskId].totalScore += record.passRate
+    taskStatsMap[record.taskId].errorCount += record.borrowErrors.length + record.returnErrors.length
   })
 
   const recommendedTasks: TaskRecommendation[] = tasks
     .map(task => {
-      const taskRecords = recentRecords.filter(r => r.taskId === task.id)
-      const practiceCount = taskRecords.length
-      const avgScore =
-        practiceCount > 0
-          ? Math.round(taskRecords.reduce((s, r) => s + r.passRate, 0) / practiceCount)
-          : 0
-      const errorCount = taskErrorCounts[task.id] || 0
-      const totalErrors = taskRecords.reduce(
-        (s, r) => s + r.borrowErrors.length + r.returnErrors.length,
-        0
-      )
+      const stats = taskStatsMap[task.id] || { count: 0, totalScore: 0, errorCount: 0 }
+      const passRate = stats.count > 0 ? Math.round(stats.totalScore / stats.count) : 0
 
       let reason = ''
-      if (practiceCount > 0 && avgScore < 80) {
-        reason = `平均得分 ${avgScore}，${totalErrors} 个错误待纠正`
-      } else if (errorCount >= 3) {
-        reason = `累计 ${errorCount} 个高频错误，建议强化`
-      } else if (practiceCount === 0 && task.difficulty !== 'easy') {
+      if (stats.count > 0 && passRate < 70) {
+        reason = `通过率 ${passRate}%，${stats.errorCount} 个错误待纠正`
+      } else if (stats.count > 0 && passRate < 85) {
+        reason = `通过率 ${passRate}%，仍有提升空间`
+      } else if (stats.errorCount >= 4) {
+        reason = `累计 ${stats.errorCount} 个错误，建议强化`
+      } else if (stats.count === 0 && task.difficulty !== 'easy') {
         reason = '尚未练习，建议尽快完成'
       }
 
@@ -529,23 +580,26 @@ export const generateTrainingReport = (
         taskId: task.id,
         taskTitle: task.title,
         reason,
-        practiceCount,
-        avgScore
+        practiceCount: stats.count,
+        passRate
       }
     })
     .filter(t => t.reason)
     .sort((a, b) => {
-      if (a.avgScore !== b.avgScore) return a.avgScore - b.avgScore
+      if (a.passRate !== b.passRate) return a.passRate - b.passRate
       return b.practiceCount - a.practiceCount
     })
     .slice(0, 4)
 
   return {
-    totalPractice,
+    totalPractices,
     totalPassed,
-    avgScore,
+    overallPassRate,
+    uniqueTasksPracticed,
+    totalErrors,
     periodDays,
     topErrors,
+    weakPoints,
     weakCategories,
     recommendedTasks,
     generatedAt: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-')
@@ -556,5 +610,109 @@ export const getResultErrorCategories = (result: PracticeResult): ErrorCategory[
   const categories = new Set<ErrorCategory>()
   result.borrowErrors.forEach(e => categories.add(e.category))
   result.returnErrors.forEach(e => categories.add(e.category))
+  if (result.historicalErrors) {
+    result.historicalErrors.borrow.forEach(e => categories.add(e.category))
+    result.historicalErrors.returned.forEach(e => categories.add(e.category))
+  }
   return Array.from(categories)
+}
+
+const inferErrorCategory = (error: Partial<FieldError>): ErrorCategory => {
+  if (error.category && error.category !== 'other') {
+    return error.category as ErrorCategory
+  }
+  const field = error.field || ''
+  const message = error.message || ''
+  const type = error.type || ''
+
+  if (field === 'serialNo' || message.includes('序号') || message.includes('S/N')) {
+    return 'missing_serial_no'
+  }
+  if (field === 'hasAirworthinessTag' || message.includes('适航') || message.includes('8130') || message.includes('EASA')) {
+    return 'missing_airworthiness_tag'
+  }
+  if (field === 'hasDisassemblyRecord' || message.includes('拆装') || message.includes('拆装记录')) {
+    return 'missing_disassembly_record'
+  }
+  if (field === 'workCardNo' || message.includes('工卡') || message.includes('WC-')) {
+    return 'missing_work_card_no'
+  }
+  if (field === 'hasRepairTag' || message.includes('待修') || message.includes('AOG') || message.includes('修理')) {
+    return 'missing_repair_tag'
+  }
+  if (field === 'partStatus' || message.includes('状态') || message.includes('serviceable') || message.includes('unserviceable')) {
+    return 'wrong_part_status'
+  }
+  if (field === 'accessoriesComplete' || message.includes('附件') || message.includes('齐套') || message.includes('封圈')) {
+    return 'incomplete_accessories'
+  }
+  if (field === 'partNo' || type === 'format' || message.includes('格式') || message.includes('件号')) {
+    return 'format_error'
+  }
+  return 'other'
+}
+
+export const migrateRecordCategories = (record: PracticeResult): PracticeResult => {
+  let hasChanges = false
+
+  const migratedBorrowErrors = record.borrowErrors.map(err => {
+    if (!err.category || err.category === 'other') {
+      hasChanges = true
+      return { ...err, category: inferErrorCategory(err) }
+    }
+    return err
+  })
+
+  const migratedReturnErrors = record.returnErrors.map(err => {
+    if (!err.category || err.category === 'other') {
+      hasChanges = true
+      return { ...err, category: inferErrorCategory(err) }
+    }
+    return err
+  })
+
+  let migratedHistoricalErrors = record.historicalErrors
+  if (record.historicalErrors) {
+    const migratedHistBorrow = record.historicalErrors.borrow.map(err => {
+      if (!err.category || err.category === 'other') {
+        hasChanges = true
+        return { ...err, category: inferErrorCategory(err) }
+      }
+      return err
+    })
+    const migratedHistReturn = record.historicalErrors.returned.map(err => {
+      if (!err.category || err.category === 'other') {
+        hasChanges = true
+        return { ...err, category: inferErrorCategory(err) }
+      }
+      return err
+    })
+    migratedHistoricalErrors = {
+      borrow: migratedHistBorrow,
+      returned: migratedHistReturn
+    }
+  }
+
+  const migratedScoreItems = record.scoreItems.map(item => {
+    if (!item.errorCategory || item.errorCategory === 'other') {
+      hasChanges = true
+      const categoryFromField = scoreItemToErrorCategory[item.id as keyof typeof scoreItemToErrorCategory]
+      return { ...item, errorCategory: categoryFromField || inferErrorCategory({ field: item.field }) }
+    }
+    return item
+  })
+
+  if (!hasChanges) return record
+
+  return {
+    ...record,
+    borrowErrors: migratedBorrowErrors,
+    returnErrors: migratedReturnErrors,
+    scoreItems: migratedScoreItems,
+    historicalErrors: migratedHistoricalErrors
+  }
+}
+
+export const migrateAllRecords = (records: PracticeResult[]): PracticeResult[] => {
+  return records.map(rec => migrateRecordCategories(rec))
 }

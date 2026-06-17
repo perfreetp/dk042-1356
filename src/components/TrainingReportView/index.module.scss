@@ -25,6 +25,8 @@
   background: $color-bg-page;
   border-radius: $radius-xl $radius-xl 0 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   animation: slideUp 0.3s ease;
 }
 
@@ -44,6 +46,7 @@
   padding: $spacing-lg $page-padding;
   background: linear-gradient(135deg, #7C3AED 0%, #0EA5E9 100%);
   position: relative;
+  flex-shrink: 0;
 }
 
 .headerTitle {
@@ -85,9 +88,43 @@
   font-weight: $font-weight-bold;
 }
 
+.periodTabs {
+  display: flex;
+  background: $color-bg-card;
+  padding: $spacing-sm;
+  gap: $spacing-xs;
+  border-bottom: 1rpx solid $color-divider;
+  flex-shrink: 0;
+}
+
+.periodTab {
+  flex: 1;
+  height: 72rpx;
+  border-radius: $radius-md;
+  @include flex-center;
+  transition: all $transition-base;
+}
+
+.periodTabActive {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  box-shadow: 0 4rpx 12rpx rgba(59, 130, 246, 0.3);
+}
+
+.periodTabText {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+}
+
+.periodTabTextActive {
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}
+
 .content {
-  max-height: calc(90vh - 140rpx);
+  flex: 1;
   padding: $spacing-lg $page-padding;
+  overflow-y: auto;
 }
 
 .overview {
@@ -100,6 +137,20 @@
 
 .overviewHeader {
   margin-bottom: $spacing-lg;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.overviewTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.overviewSub {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
 }
 
 .overviewGrid {
@@ -148,20 +199,20 @@
 
 .sectionHeader {
   margin-bottom: $spacing-md;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
 }
 
 .sectionTitle {
   font-size: $font-size-lg;
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
-  display: block;
-  margin-bottom: 4rpx;
 }
 
 .sectionSub {
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
   color: $color-text-tertiary;
-  display: block;
 }
 
 .errorItem {
@@ -176,6 +227,13 @@
 
   &:last-child {
     margin-bottom: 0;
+  }
+}
+
+.errorItemClickable {
+  &:active {
+    transform: scale(0.98);
+    background: #F8FAFC;
   }
 }
 
@@ -333,6 +391,26 @@
   font-size: $font-size-sm;
   color: #B45309;
   line-height: $line-height-normal;
+  display: block;
+  margin-bottom: $spacing-sm;
+}
+
+.weakPointTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+}
+
+.weakPointTag {
+  padding: 2rpx 10rpx;
+  background: rgba(245, 158, 11, 0.15);
+  border-radius: $radius-xs;
+}
+
+.weakPointTagText {
+  font-size: 18rpx;
+  color: #92400E;
+  font-weight: $font-weight-medium;
 }
 
 .recommendItem {
@@ -357,10 +435,6 @@
   color: $color-text-primary;
   display: block;
   margin-bottom: $spacing-xs;
-}
-
-.recommendMeta {
-  margin-bottom: $spacing-sm;
 }
 
 .recommendReason {

@@ -23,7 +23,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
 }) => {
   const { state } = usePractice()
   const taskStats = getTaskStats(task.id, state.records)
-  const { practiceCount, passCount, latestScore, highestScore } = taskStats
+  const { practiceCount, passCount, recentScore: latestScore, highestScore } = taskStats
 
   const handleCardClick = () => {
     if (onClick) {

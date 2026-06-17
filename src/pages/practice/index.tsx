@@ -30,6 +30,7 @@ const PracticePage: React.FC = () => {
     borrowErrors,
     returnErrors,
     historicalBorrowErrors,
+    historicalReturnErrors,
     currentResult
   } = state
 
@@ -77,19 +78,21 @@ const PracticePage: React.FC = () => {
         borrowErrors.length > 0
           ? borrowErrors
           : validateBorrowForm(borrowForm, currentTask)
-      const historicalErrors = {
-        borrow: historicalBorrowErrors,
-        returned: []
-      }
+      const hasHistoricalErrors =
+        historicalBorrowErrors.length > 0 || historicalReturnErrors.length > 0
+      const historicalErrors = hasHistoricalErrors
+        ? {
+            borrow: historicalBorrowErrors,
+            returned: historicalReturnErrors
+          }
+        : undefined
       const result = calculateScore(
         currentTask,
         borrowForm,
         returnForm,
         finalBorrowErrors,
         finalReturnErrors,
-        historicalBorrowErrors.length > 0 || finalReturnErrors.length > 0
-          ? historicalErrors
-          : undefined
+        historicalErrors
       )
       result.duration = Math.floor((Date.now() - state.startTime) / 1000)
       console.log(
@@ -99,8 +102,10 @@ const PracticePage: React.FC = () => {
         result.maxScore,
         '错误数:',
         result.scoreItems.filter(s => !s.passed).length,
-        '历史错误:',
-        historicalBorrowErrors.length
+        '历史错误(借):',
+        historicalBorrowErrors.length,
+        '历史错误(还):',
+        historicalReturnErrors.length
       )
       dispatch({ type: 'COMPLETE_PRACTICE', payload: result })
       Taro.hideLoading()

@@ -1,24 +1,46 @@
-import React from 'react'
+import React, { useState, useMemo } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
-import { TrainingReport, ERROR_CATEGORY_LABELS, Task } from '@/types'
+import {
+  TrainingReport,
+  ErrorCategory,
+  ERROR_CATEGORY_LABELS,
+  Task,
+  PracticeResult
+} from '@/types'
+import { generateTrainingReport } from '@/utils/scorer'
 import styles from './index.module.scss'
 import classnames from 'classnames'
 
 interface TrainingReportViewProps {
-  report: TrainingReport
+  records: PracticeResult[]
+  tasks: Task[]
   onClose: () => void
   onRetryTask: (taskId: string) => void
   onViewTaskHistory: (taskId: string) => void
+  onViewErrorDetail?: (category: ErrorCategory) => void
 }
 
+const PERIOD_OPTIONS = [
+  { value: 7, label: '近7天' },
+  { value: 0, label: '全部历史' }
+]
+
 const TrainingReportView: React.FC<TrainingReportViewProps> = ({
-  report,
+  records,
+  tasks,
   onClose,
   onRetryTask,
-  onViewTaskHistory
+  onViewTaskHistory,
+  onViewErrorDetail
 }) => {
-  const getCategoryIcon = (category: string): string => {
-    const iconMap: Record<string, string> = {
+  const [periodDays, setPeriodDays] = useState(7)
+
+  const report = useMemo<TrainingReport>(() => {
+    return generateTrainingReport(records, tasks, periodDays)
+  }, [records, tasks, periodDays])
+
+  const getCategoryIcon = (category: ErrorCategory): string => {
+    const iconMap: Record<ErrorCategory, string> = {
       missing_serial_no: '🔢',
       missing_airworthiness_tag: '📋',
       missing_disassembly_record: '📝',
@@ -50,6 +72,17 @@ const TrainingReportView: React.FC<TrainingReportViewProps> = ({
     return labelMap[severity]
   }
 
+  const handleErrorClick = (category: ErrorCategory) => {
+    if (onViewErrorDetail) {
+      onViewErrorDetail(category)
+      onClose()
+    }
+  }
+
+  const formatPeriodLabel = (): string => {
+    return periodDays === 0 ? '全部历史' : `近${periodDays}天`
+  }
+
   return (
     <View className={styles.overlay} onClick={onClose}>
       <View className={styles.modal} onClick={(e) => e.stopPropagation()}>
@@ -58,7 +91,7 @@ const TrainingReportView: React.FC<TrainingReportViewProps> = ({
             <Text className={styles.headerIcon}>📊</Text>
             <View>
               <Text className={styles.headerTitleText}>训练分析报告</Text>
-              <Text className={styles.headerSub}>{report.periodDays}天训练汇总</Text>
+              <Text className={styles.headerSub}>{formatPeriodLabel()} · {report.totalPractices}次练习</Text>
             </View>
           </View>
           <View className={styles.closeBtn} onClick={onClose}>
@@ -66,10 +99,29 @@ const TrainingReportView: React.FC<TrainingReportViewProps> = ({
           </View>
         </View>
 
+        <View className={styles.periodTabs}>
+          {PERIOD_OPTIONS.map(opt => (
+            <View
+              key={opt.value}
+              className={classnames(
+                styles.periodTab,
+                periodDays === opt.value && styles.periodTabActive
+              )}
+              onClick={() => setPeriodDays(opt.value)}
+            >
+              <Text className={classnames(
+                styles.periodTabText,
+                periodDays === opt.value && styles.periodTabTextActive
+              )}>{opt.label}</Text>
+            </View>
+          ))}
+        </View>
+
         <ScrollView scrollY className={styles.content}>
           <View className={styles.overview}>
             <View className={styles.overviewHeader}>
-              <Text className={styles.sectionTitle}>训练概览</Text>
+              <Text className={styles.overviewTitle}>训练概览</Text>
+              <Text className={styles.overviewSub}>生成于 {report.generatedAt}</Text>
             </View>
             <View className={styles.overviewGrid}>
               <View className={styles.overviewCell}>
@@ -82,7 +134,7 @@ const TrainingReportView: React.FC<TrainingReportViewProps> = ({
                   report.overallPassRate >= 80 ? styles.valueGood :
                   report.overallPassRate >= 60 ? styles.valueWarn : styles.valueBad
                 )}>{report.overallPassRate}%</Text>
-                <Text className={styles.overviewLabel}>整体通过率</Text>
+                <Text className={styles.overviewLabel}>平均得分率</Text>
               </View>
               <View className={styles.overviewCell}>
                 <Text className={styles.overviewValue}>{report.uniqueTasksPracticed}</Text>
@@ -99,10 +151,17 @@ const TrainingReportView: React.FC<TrainingReportViewProps> = ({
             <View className={styles.section}>
               <View className={styles.sectionHeader}>
                 <Text className={styles.sectionTitle}>高频错误 TOP5</Text>
-                <Text className={styles.sectionSub}>最常出现的错误类型</Text>
+                <Text className={styles.sectionSub}>点击查看详情</Text>
               </View>
               {report.topErrors.map((item, index) => (
-                <View key={item.category} className={styles.errorItem}>
+                <View
+                  key={item.category}
+                  className={classnames(
+                    styles.errorItem,
+                    onViewErrorDetail && styles.errorItemClickable
+                  )}
+                  onClick={() => handleErrorClick(item.category)}
+                >
                   <View className={styles.errorRank}>
                     <Text className={styles.errorRankText}>{index + 1}</Text>
                   </View>
@@ -123,7 +182,9 @@ const TrainingReportView: React.FC<TrainingReportViewProps> = ({
                         </Text>
                       </View>
                     </View>
-                    <Text className={styles.errorCount}>出现 {item.count} 次 · 涉及 {item.affectedTasks.length} 个任务</Text>
+                    <Text className={styles.errorCount}>
+                      出现 {item.count} 次 · 涉及 {item.relatedTaskIds.length} 个任务
+                    </Text>
                     <View className={styles.errorProgress}>
                       <View
                         className={styles.errorProgressBar}
@@ -154,6 +215,15 @@ const TrainingReportView: React.FC<TrainingReportViewProps> = ({
                   <View className={styles.weakPointInfo}>
                     <Text className={styles.weakPointTitle}>{point.title}</Text>
                     <Text className={styles.weakPointDesc}>{point.description}</Text>
+                    <View className={styles.weakPointTags}>
+                      {point.relatedCategories.map(cat => (
+                        <View key={cat} className={styles.weakPointTag}>
+                          <Text className={styles.weakPointTagText}>
+                            {ERROR_CATEGORY_LABELS[cat]}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
                   </View>
                 </View>
               ))}
@@ -170,9 +240,7 @@ const TrainingReportView: React.FC<TrainingReportViewProps> = ({
                 <View key={rec.taskId} className={styles.recommendItem}>
                   <View className={styles.recommendInfo}>
                     <Text className={styles.recommendTitle}>{rec.taskTitle}</Text>
-                    <View className={styles.recommendMeta}>
-                      <Text className={styles.recommendReason}>{rec.reason}</Text>
-                    </View>
+                    <Text className={styles.recommendReason}>{rec.reason}</Text>
                   </View>
                   <View className={styles.recommendMetaRow}>
                     <Text className={styles.recommendScore}>
@@ -189,7 +257,7 @@ const TrainingReportView: React.FC<TrainingReportViewProps> = ({
                         className={styles.recommendBtnPrimary}
                         onClick={() => onRetryTask(rec.taskId)}
                       >
-                        <Text className={styles.recommendBtnPrimaryText}>复练</Text>
+                        <Text className={styles.recommendBtnPrimaryText}>立即复练</Text>
                       </View>
                     </View>
                   </View>

@@ -129,6 +129,7 @@ export interface PracticeState {
   borrowErrors: FieldError[]
   returnErrors: FieldError[]
   historicalBorrowErrors: FieldError[]
+  historicalReturnErrors: FieldError[]
   currentResult: PracticeResult | null
   startTime: number
   records: PracticeResult[]
@@ -152,6 +153,8 @@ export interface ErrorFrequencyItem {
   count: number
   label: string
   relatedTaskIds: string[]
+  severity: 'critical' | 'warning' | 'info'
+  suggestion: string
 }
 
 export interface TaskRecommendation {
@@ -159,15 +162,24 @@ export interface TaskRecommendation {
   taskTitle: string
   reason: string
   practiceCount: number
-  avgScore: number
+  passRate: number
+}
+
+export interface WeakPoint {
+  title: string
+  description: string
+  relatedCategories: ErrorCategory[]
 }
 
 export interface TrainingReport {
-  totalPractice: number
+  totalPractices: number
   totalPassed: number
-  avgScore: number
+  overallPassRate: number
+  uniqueTasksPracticed: number
+  totalErrors: number
   periodDays: number
   topErrors: ErrorFrequencyItem[]
+  weakPoints: WeakPoint[]
   weakCategories: ErrorCategory[]
   recommendedTasks: TaskRecommendation[]
   generatedAt: string
