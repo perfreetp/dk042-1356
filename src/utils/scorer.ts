@@ -412,15 +412,19 @@ export const getTaskStats = (taskId: string, records: PracticeResult[]): TaskSta
   const sortedByDate = [...taskRecords].sort(
     (a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
   )
-  const recentScore = sortedByDate[0]?.passRate || null
+  const recentScore = sortedByDate[0]?.passRate ?? null
   const highestScore = practiceCount > 0 ? Math.max(...taskRecords.map(r => r.passRate)) : null
-  const recentCompletedAt = sortedByDate[0]?.completedAt || null
+  const recentCompletedAt = sortedByDate[0]?.completedAt ?? null
 
   const errorCategoryCounts: Partial<Record<ErrorCategory, number>> = {}
   taskRecords.forEach(record => {
     const allErrors = [...record.borrowErrors, ...record.returnErrors]
+    if (record.historicalErrors) {
+      allErrors.push(...record.historicalErrors.borrow, ...record.historicalErrors.returned)
+    }
     allErrors.forEach(error => {
-      errorCategoryCounts[error.category] = (errorCategoryCounts[error.category] || 0) + 1
+      const cat = error.category || 'other'
+      errorCategoryCounts[cat] = (errorCategoryCounts[cat] || 0) + 1
     })
   })
 
@@ -465,6 +469,9 @@ export const generateTrainingReport = (
 
   periodRecords.forEach(record => {
     const allErrors = [...record.borrowErrors, ...record.returnErrors]
+    if (record.historicalErrors) {
+      allErrors.push(...record.historicalErrors.borrow, ...record.historicalErrors.returned)
+    }
     totalErrors += allErrors.length
     allErrors.forEach(error => {
       const cat = error.category || 'other'
@@ -557,7 +564,11 @@ export const generateTrainingReport = (
     }
     taskStatsMap[record.taskId].count++
     taskStatsMap[record.taskId].totalScore += record.passRate
-    taskStatsMap[record.taskId].errorCount += record.borrowErrors.length + record.returnErrors.length
+    let recErrors = record.borrowErrors.length + record.returnErrors.length
+    if (record.historicalErrors) {
+      recErrors += record.historicalErrors.borrow.length + record.historicalErrors.returned.length
+    }
+    taskStatsMap[record.taskId].errorCount += recErrors
   })
 
   const recommendedTasks: TaskRecommendation[] = tasks
@@ -715,4 +726,50 @@ export const migrateRecordCategories = (record: PracticeResult): PracticeResult 
 
 export const migrateAllRecords = (records: PracticeResult[]): PracticeResult[] => {
   return records.map(rec => migrateRecordCategories(rec))
+}
+
+export const getAllResultErrors = (result: PracticeResult): FieldError[] => {
+  const all = [...result.borrowErrors, ...result.returnErrors]
+  if (result.historicalErrors) {
+    all.push(...result.historicalErrors.borrow, ...result.historicalErrors.returned)
+  }
+  return all
+}
+
+export const isHistoricalErrorCorrected = (
+  historicalError: FieldError,
+  finalBorrowErrors: FieldError[],
+  finalReturnErrors: FieldError[]
+): boolean => {
+  const allFinalErrors = [...finalBorrowErrors, ...finalReturnErrors]
+  return !allFinalErrors.some(
+    e => e.field === historicalError.field && e.category === historicalError.category
+  )
+}
+
+export const safeGenerateTrainingReport = (
+  records: PracticeResult[],
+  tasks: Task[],
+  periodDays: number = 7
+): TrainingReport => {
+  try {
+    return generateTrainingReport(records, tasks, periodDays)
+  } catch (err) {
+    console.error('[safeGenerateTrainingReport] 生成报告失败:', err)
+    return {
+      totalPractices: records.length,
+      totalPassed: records.filter(r => r.passed).length,
+      overallPassRate: records.length > 0
+        ? Math.round(records.reduce((s, r) => s + r.passRate, 0) / records.length)
+        : 0,
+      uniqueTasksPracticed: new Set(records.map(r => r.taskId)).size,
+      totalErrors: 0,
+      periodDays,
+      topErrors: [],
+      weakPoints: [],
+      weakCategories: [],
+      recommendedTasks: [],
+      generatedAt: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-')
+    }
+  }
 }

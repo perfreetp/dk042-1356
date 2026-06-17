@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
 import { PracticeResult, ScoreItem as ScoreItemType, Task, ErrorCategory, ERROR_CATEGORY_LABELS } from '@/types'
+import { isHistoricalErrorCorrected } from '@/utils/scorer'
 import ScoreItemComponent from '@/components/ScoreItem'
 import styles from './index.module.scss'
 import classnames from 'classnames'
@@ -133,27 +134,63 @@ const ResultView: React.FC<ResultViewProps> = ({
               {result.historicalErrors!.borrow.length > 0 && (
                 <View className={styles.historySection}>
                   <Text className={styles.historyLabel}>借出环节曾错：</Text>
-                  {result.historicalErrors!.borrow.map((e, idx) => (
-                    <View key={`hb-${idx}`} className={styles.historyItem}>
-                      <Text className={styles.historyBadge}>
-                        {ERROR_CATEGORY_LABELS[e.category]}
-                      </Text>
-                      <Text className={styles.historyText}>✕ {e.message}</Text>
-                    </View>
-                  ))}
+                  {result.historicalErrors!.borrow.map((e, idx) => {
+                    const corrected = isHistoricalErrorCorrected(
+                      e, result.borrowErrors, result.returnErrors
+                    )
+                    return (
+                      <View key={`hb-${idx}`} className={styles.historyItem}>
+                        <View className={styles.historyItemHeader}>
+                          <Text className={styles.historyBadge}>
+                            {ERROR_CATEGORY_LABELS[e.category]}
+                          </Text>
+                          <View className={classnames(
+                            styles.historyStatus,
+                            corrected ? styles.historyStatusOk : styles.historyStatusBad
+                          )}>
+                            <Text className={styles.historyStatusText}>
+                              {corrected ? '✓ 后来已改对' : '✕ 最后仍然错着'}
+                            </Text>
+                          </View>
+                        </View>
+                        <Text className={styles.historyText}>✕ {e.message}</Text>
+                        {corrected && (
+                          <Text className={styles.historyCorrectAction}>✓ {e.correctAction}</Text>
+                        )}
+                      </View>
+                    )
+                  })}
                 </View>
               )}
               {result.historicalErrors!.returned.length > 0 && (
                 <View className={styles.historySection}>
                   <Text className={styles.historyLabel}>归还环节曾错：</Text>
-                  {result.historicalErrors!.returned.map((e, idx) => (
-                    <View key={`hr-${idx}`} className={styles.historyItem}>
-                      <Text className={styles.historyBadge}>
-                        {ERROR_CATEGORY_LABELS[e.category]}
-                      </Text>
-                      <Text className={styles.historyText}>✕ {e.message}</Text>
-                    </View>
-                  ))}
+                  {result.historicalErrors!.returned.map((e, idx) => {
+                    const corrected = isHistoricalErrorCorrected(
+                      e, result.borrowErrors, result.returnErrors
+                    )
+                    return (
+                      <View key={`hr-${idx}`} className={styles.historyItem}>
+                        <View className={styles.historyItemHeader}>
+                          <Text className={styles.historyBadge}>
+                            {ERROR_CATEGORY_LABELS[e.category]}
+                          </Text>
+                          <View className={classnames(
+                            styles.historyStatus,
+                            corrected ? styles.historyStatusOk : styles.historyStatusBad
+                          )}>
+                            <Text className={styles.historyStatusText}>
+                              {corrected ? '✓ 后来已改对' : '✕ 最后仍然错着'}
+                            </Text>
+                          </View>
+                        </View>
+                        <Text className={styles.historyText}>✕ {e.message}</Text>
+                        {corrected && (
+                          <Text className={styles.historyCorrectAction}>✓ {e.correctAction}</Text>
+                        )}
+                      </View>
+                    )
+                  })}
                 </View>
               )}
             </View>

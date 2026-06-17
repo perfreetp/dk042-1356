@@ -7,7 +7,7 @@ import {
   Task,
   PracticeResult
 } from '@/types'
-import { generateTrainingReport } from '@/utils/scorer'
+import { safeGenerateTrainingReport } from '@/utils/scorer'
 import styles from './index.module.scss'
 import classnames from 'classnames'
 
@@ -36,7 +36,7 @@ const TrainingReportView: React.FC<TrainingReportViewProps> = ({
   const [periodDays, setPeriodDays] = useState(7)
 
   const report = useMemo<TrainingReport>(() => {
-    return generateTrainingReport(records, tasks, periodDays)
+    return safeGenerateTrainingReport(records, tasks, periodDays)
   }, [records, tasks, periodDays])
 
   const getCategoryIcon = (category: ErrorCategory): string => {

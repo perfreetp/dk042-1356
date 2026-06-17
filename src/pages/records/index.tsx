@@ -8,7 +8,7 @@ import {
   ErrorCategory,
   ERROR_CATEGORY_LABELS
 } from '@/types'
-import { getResultErrorCategories, generateTrainingReport } from '@/utils/scorer'
+import { getResultErrorCategories, safeGenerateTrainingReport as generateSafeReport, getAllResultErrors } from '@/utils/scorer'
 import ResultView from '@/components/ResultView'
 import styles from './index.module.scss'
 import classnames from 'classnames'
@@ -68,22 +68,27 @@ const RecordsPage: React.FC = () => {
       return { topCategories: [], relatedTasks: {} as Record<ErrorCategory, string[]> }
     }
 
-    const report = generateTrainingReport(records, tasks, 0)
-    const topCategories = report.topErrors.slice(0, 3)
+    try {
+      const report = generateSafeReport(records, tasks, 0)
+      const topCategories = report.topErrors.slice(0, 3)
 
-    const relatedTasks: Record<ErrorCategory, string[]> = {} as Record<ErrorCategory, string[]>
-    topCategories.forEach(item => {
-      const taskSet = new Set<string>()
-      records.forEach(record => {
-        const allErrors = [...record.borrowErrors, ...record.returnErrors]
-        if (allErrors.some(e => e.category === item.category)) {
-          taskSet.add(record.taskId)
-        }
+      const relatedTasks: Record<ErrorCategory, string[]> = {} as Record<ErrorCategory, string[]>
+      topCategories.forEach(item => {
+        const taskSet = new Set<string>()
+        records.forEach(record => {
+          const allErrors = getAllResultErrors(record)
+          if (allErrors.some(e => e.category === item.category)) {
+            taskSet.add(record.taskId)
+          }
+        })
+        relatedTasks[item.category] = Array.from(taskSet)
       })
-      relatedTasks[item.category] = Array.from(taskSet)
-    })
 
-    return { topCategories, relatedTasks }
+      return { topCategories, relatedTasks }
+    } catch (err) {
+      console.error('[weakPointsAnalysis] 分析失败:', err)
+      return { topCategories: [], relatedTasks: {} as Record<ErrorCategory, string[]> }
+    }
   }, [records, tasks])
 
   const filteredRecords = useMemo(() => {

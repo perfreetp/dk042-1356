@@ -361,14 +361,18 @@
 }
 
 .historyItem {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: $spacing-sm;
-  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
 
   &:last-child {
     margin-bottom: 0;
   }
+}
+
+.historyItemHeader {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: 4rpx;
 }
 
 .historyBadge {
@@ -378,14 +382,46 @@
   padding: 2rpx 10rpx;
   border-radius: $radius-xs;
   flex-shrink: 0;
-  margin-top: 2rpx;
+}
+
+.historyStatus {
+  padding: 2rpx 12rpx;
+  border-radius: $radius-xs;
+  flex-shrink: 0;
+}
+
+.historyStatusOk {
+  background: rgba(16, 185, 129, 0.1);
+  .historyStatusText {
+    color: $color-success;
+  }
+}
+
+.historyStatusBad {
+  background: rgba(239, 68, 68, 0.1);
+  .historyStatusText {
+    color: $color-error;
+  }
+}
+
+.historyStatusText {
+  font-size: 20rpx;
+  font-weight: $font-weight-semibold;
 }
 
 .historyText {
   font-size: $font-size-sm;
   color: $color-error;
-  flex: 1;
   line-height: $line-height-normal;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.historyCorrectAction {
+  font-size: $font-size-sm;
+  color: $color-success;
+  line-height: $line-height-normal;
+  display: block;
 }
 
 .errorSummaryItem {
