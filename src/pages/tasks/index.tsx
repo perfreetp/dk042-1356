@@ -1,9 +1,11 @@
 import React, { useState, useMemo } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { Task, TaskStatus } from '@/types'
+import { Task, TaskStatus, TrainingReport } from '@/types'
 import { usePractice } from '@/store/PracticeContext'
+import { generateTrainingReport, getTaskStats } from '@/utils/scorer'
 import TaskCard from '@/components/TaskCard'
+import TrainingReportView from '@/components/TrainingReportView'
 import styles from './index.module.scss'
 import classnames from 'classnames'
 
@@ -18,6 +20,7 @@ const filterOptions: { value: FilterType; label: string }[] = [
 
 const TasksPage: React.FC = () => {
   const [filter, setFilter] = useState<FilterType>('all')
+  const [showReport, setShowReport] = useState(false)
   const { selectTask, state } = usePractice()
   const { tasks, records } = state
 
@@ -36,12 +39,51 @@ const TasksPage: React.FC = () => {
     return { total, completed, records: recordCount, avgScore }
   }, [tasks, records])
 
-  const handleSelectTask = (task: Task) => {
-    console.log('[Tasks] 选择任务:', task.id, task.title, '当前状态:', task.status)
+  const trainingReport = useMemo<TrainingReport | null>(() => {
+    if (records.length === 0) return null
+    return generateTrainingReport(records, tasks, 7)
+  }, [records, tasks])
+
+  const handleStartPractice = (task: Task) => {
+    console.log('[Tasks] 开始练习:', task.id, task.title)
     selectTask(task)
     Taro.switchTab({
       url: '/pages/practice/index'
     })
+  }
+
+  const handleRetry = (task: Task) => {
+    console.log('[Tasks] 复练任务:', task.id, task.title)
+    selectTask(task)
+    Taro.switchTab({
+      url: '/pages/practice/index'
+    })
+  }
+
+  const handleViewHistory = (task: Task) => {
+    console.log('[Tasks] 查看历史:', task.id, task.title)
+    selectTask(task)
+    Taro.switchTab({
+      url: '/pages/records/index'
+    })
+  }
+
+  const handleCardClick = (task: Task) => {
+    const taskStats = getTaskStats(task.id, records)
+    if (taskStats.practiceCount === 0) {
+      handleStartPractice(task)
+    } else {
+      Taro.showActionSheet({
+        itemList: ['🔄 直接复练', '📜 查看历史成绩'],
+        success: (res) => {
+          if (res.tapIndex === 0) {
+            handleRetry(task)
+          } else if (res.tapIndex === 1) {
+            handleViewHistory(task)
+          }
+        }
+      })
+    }
   }
 
   return (
@@ -82,6 +124,25 @@ const TasksPage: React.FC = () => {
             </View>
           </View>
         </View>
+
+        {trainingReport && (
+          <View className={styles.reportEntry} onClick={() => setShowReport(true)}>
+            <View className={styles.reportEntryLeft}>
+              <View className={styles.reportEntryIcon}>
+                <Text className={styles.reportEntryIconText}>📊</Text>
+              </View>
+              <View className={styles.reportEntryText}>
+                <Text className={styles.reportEntryTitle}>训练报告</Text>
+                <Text className={styles.reportEntrySub}>
+                  近7天：{trainingReport.topErrors.length}个高频错误 · {trainingReport.recommendedTasks.length}个建议复练
+                </Text>
+              </View>
+            </View>
+            <View className={styles.reportEntryArrow}>
+              <Text className={styles.reportEntryArrowText}>→</Text>
+            </View>
+          </View>
+        )}
       </View>
 
       <View className={styles.filterBar}>
@@ -107,7 +168,9 @@ const TasksPage: React.FC = () => {
             <TaskCard
               key={task.id}
               task={task}
-              onClick={() => handleSelectTask(task)}
+              onClick={() => handleCardClick(task)}
+              onRetry={() => handleRetry(task)}
+              onViewHistory={() => handleViewHistory(task)}
             />
           ))
         ) : (
@@ -119,6 +182,25 @@ const TasksPage: React.FC = () => {
           </View>
         )}
       </View>
+
+      {showReport && trainingReport && (
+        <TrainingReportView
+          report={trainingReport}
+          onClose={() => setShowReport(false)}
+          onRetryTask={(taskId) => {
+            const task = tasks.find(t => t.id === taskId)
+            if (task) {
+              handleRetry(task)
+            }
+          }}
+          onViewTaskHistory={(taskId) => {
+            const task = tasks.find(t => t.id === taskId)
+            if (task) {
+              handleViewHistory(task)
+            }
+          }}
+        />
+      )}
     </ScrollView>
   )
 }

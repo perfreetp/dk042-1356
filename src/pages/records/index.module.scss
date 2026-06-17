@@ -382,3 +382,208 @@
   font-size: $font-size-md;
   font-weight: $font-weight-semibold;
 }
+
+.filterBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-bottom: 1rpx solid $color-divider;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.filterBarLeft {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.filterChip {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-button;
+  position: relative;
+}
+
+.filterChipActive {
+  background: rgba(14, 165, 233, 0.1);
+  border: 1rpx solid $color-accent;
+
+  .filterChipText {
+    color: $color-accent;
+  }
+}
+
+.filterChipText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.filterChipBadge {
+  position: absolute;
+  top: -8rpx;
+  right: -8rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  border-radius: $radius-round;
+  background: $color-accent;
+  @include flex-center;
+  padding: 0 8rpx;
+}
+
+.filterChipBadgeText {
+  font-size: 18rpx;
+  color: $color-text-white;
+  font-weight: $font-weight-bold;
+}
+
+.filterPanel {
+  background: $color-bg-card;
+  padding: $spacing-lg $page-padding;
+  border-bottom: 1rpx solid $color-divider;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10rpx);
+  }
+  to {
+    max-height: 1000rpx;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filterSection {
+  margin-bottom: $spacing-lg;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.filterLabel {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-md;
+}
+
+.filterOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.optionChip {
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-button;
+  background: $color-bg-page;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.optionChipActive {
+  background: rgba(14, 165, 233, 0.1);
+  border-color: $color-accent;
+
+  .optionChipText {
+    color: $color-accent;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.optionChipText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.optionChipSelectedIcon {
+  margin-left: 6rpx;
+  font-size: 20rpx;
+}
+
+.filterActions {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-lg;
+}
+
+.filterResetBtn {
+  flex: 1;
+  height: $button-height-md;
+  background: $color-bg-page;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-button;
+  @include flex-center;
+}
+
+.filterResetBtnText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.filterApplyBtn {
+  flex: 2;
+  height: $button-height-md;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-button;
+  @include flex-center;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.filterApplyBtnText {
+  font-size: $font-size-md;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}
+
+.errorTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  margin-bottom: $spacing-md;
+}
+
+.errorTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 12rpx;
+  border-radius: $radius-xs;
+  background: $color-bg-tag-red;
+  transition: all $transition-base;
+}
+
+.errorTagHighlight {
+  background: rgba(14, 165, 233, 0.15);
+  border: 1rpx solid $color-accent;
+
+  .errorTagText {
+    color: $color-accent;
+  }
+}
+
+.errorTagText {
+  font-size: 18rpx;
+  color: $color-error;
+  font-weight: $font-weight-medium;
+}

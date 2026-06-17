@@ -220,3 +220,74 @@
   color: $color-text-tertiary;
   display: block;
 }
+
+.reportEntry {
+  background: linear-gradient(135deg, #7C3AED 0%, #0EA5E9 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8rpx 24rpx rgba(124, 58, 237, 0.3);
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.95;
+  }
+}
+
+.reportEntryLeft {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  flex: 1;
+  min-width: 0;
+}
+
+.reportEntryIcon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-md;
+  background: rgba(255, 255, 255, 0.2);
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.reportEntryIconText {
+  font-size: 36rpx;
+}
+
+.reportEntryText {
+  flex: 1;
+  min-width: 0;
+}
+
+.reportEntryTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.reportEntrySub {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.85);
+  display: block;
+}
+
+.reportEntryArrow {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-round;
+  background: rgba(255, 255, 255, 0.2);
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.reportEntryArrowText {
+  font-size: $font-size-lg;
+  color: $color-text-white;
+  font-weight: $font-weight-bold;
+}

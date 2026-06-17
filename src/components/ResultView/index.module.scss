@@ -317,3 +317,127 @@
   font-weight: $font-weight-semibold;
   color: $color-text-white;
 }
+
+.highlightHint {
+  background: rgba(14, 165, 233, 0.15);
+  border: 2rpx solid $color-accent;
+  border-radius: $radius-md;
+  padding: $spacing-sm $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.highlightHintText {
+  font-size: $font-size-sm;
+  color: $color-accent;
+  font-weight: $font-weight-medium;
+}
+
+.titleIconHistory {
+  background: #FEF3C7;
+}
+
+.historyHint {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-normal;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.historySection {
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.historyLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+  display: block;
+  margin-bottom: $spacing-sm;
+}
+
+.historyItem {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: $spacing-sm;
+  gap: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.historyBadge {
+  font-size: 20rpx;
+  color: $color-text-white;
+  background: #9CA3AF;
+  padding: 2rpx 10rpx;
+  border-radius: $radius-xs;
+  flex-shrink: 0;
+  margin-top: 2rpx;
+}
+
+.historyText {
+  font-size: $font-size-sm;
+  color: $color-error;
+  flex: 1;
+  line-height: $line-height-normal;
+}
+
+.errorSummaryItem {
+  background: #FFF8F8;
+  border: 1rpx solid #FEE2E2;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  transition: all $transition-base;
+}
+
+.errorSummaryItemHighlight {
+  background: rgba(14, 165, 233, 0.08);
+  border-color: $color-accent;
+  box-shadow: 0 4rpx 16rpx rgba(14, 165, 233, 0.15);
+}
+
+.errorSummaryHeader {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-sm;
+}
+
+.errorCategoryBadge {
+  background: $color-bg-tag-red;
+  padding: 4rpx 12rpx;
+  border-radius: $radius-xs;
+  display: inline-flex;
+}
+
+.errorCategoryBadgeHighlight {
+  background: rgba(14, 165, 233, 0.15);
+}
+
+.errorCategoryText {
+  font-size: 20rpx;
+  color: $color-error;
+  font-weight: $font-weight-medium;
+}
+
+.errorCategoryBadgeHighlight .errorCategoryText {
+  color: $color-accent;
+}
+
+.highlightTag {
+  background: $color-accent;
+  padding: 2rpx 10rpx;
+  border-radius: $radius-xs;
+}
+
+.highlightTagText {
+  font-size: 18rpx;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}

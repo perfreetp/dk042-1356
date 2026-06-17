@@ -1,0 +1,186 @@
+@use '@/styles/variables.scss' as *;
+
+.confirmDialog {
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  box-shadow: $shadow-card;
+}
+
+.confirmHeader {
+  text-align: center;
+  margin-bottom: $spacing-xl;
+}
+
+.confirmIcon {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: $radius-round;
+  margin: 0 auto $spacing-md;
+  @include flex-center;
+
+  &.confirmIconBorrow {
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  }
+
+  &.confirmIconReturn {
+    background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+  }
+}
+
+.confirmIconText {
+  font-size: 48rpx;
+}
+
+.confirmTitle {
+  display: block;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+}
+
+.confirmDesc {
+  display: block;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-normal;
+}
+
+.errorListHeader {
+  margin-bottom: $spacing-md;
+}
+
+.errorListTitle {
+  display: block;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.errorListHint {
+  display: block;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.errorList {
+  max-height: 600rpx;
+  overflow-y: auto;
+  margin-bottom: $spacing-xl;
+}
+
+.errorCard {
+  background: $color-bg-page;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  border-left: 6rpx solid $color-warning;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.errorCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.errorBadge {
+  background: $color-bg-tag-orange;
+  padding: 4rpx 14rpx;
+  border-radius: $radius-xs;
+}
+
+.errorBadgeText {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-warning;
+}
+
+.errorIndex {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-medium;
+}
+
+.errorRow {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.errorLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  width: 140rpx;
+  flex-shrink: 0;
+}
+
+.errorValue {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  line-height: $line-height-normal;
+  flex: 1;
+}
+
+.errorValueBad {
+  color: $color-error;
+}
+
+.errorValueGood {
+  color: $color-success;
+}
+
+.confirmActions {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.backBtn {
+  flex: 1;
+  height: $button-height-lg;
+  background: $color-bg-page;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-button;
+  @include flex-center;
+  transition: all $transition-base;
+
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.backBtnText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+}
+
+.confirmBtn {
+  flex: 1;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-warning 0%, #F59E0B 100%);
+  border-radius: $radius-button;
+  @include flex-center;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.confirmBtnText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+}

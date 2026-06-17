@@ -7,11 +7,16 @@ import classnames from 'classnames'
 interface ScoreItemProps {
   item: ScoreItemType
   showDetail?: boolean
+  highlight?: boolean
 }
 
-const ScoreItemComponent: React.FC<ScoreItemProps> = ({ item, showDetail = true }) => {
+const ScoreItemComponent: React.FC<ScoreItemProps> = ({ item, showDetail = true, highlight = false }) => {
   return (
-    <View className={classnames(styles.wrap, item.passed ? styles.passed : styles.failed)}>
+    <View className={classnames(
+      styles.wrap,
+      item.passed ? styles.passed : styles.failed,
+      highlight && styles.highlight
+    )}>
       <View className={styles.header}>
         <View className={styles.iconWrap}>
           <Text className={classnames(styles.icon, item.passed ? styles.iconOk : styles.iconBad)}>

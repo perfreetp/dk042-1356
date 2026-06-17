@@ -6,12 +6,32 @@ import { validateBorrowForm, validateReturnForm, calculateScore } from '@/utils/
 import BorrowSection from '@/components/BorrowSection'
 import ReturnSection from '@/components/ReturnSection'
 import ResultView from '@/components/ResultView'
+import ConfirmDialog from '@/components/ConfirmDialog'
 import styles from './index.module.scss'
 import classnames from 'classnames'
 
 const PracticePage: React.FC = () => {
-  const { state, dispatch, updateBorrow, updateReturn, resetPractice } = usePractice()
-  const { stage, currentTask, borrowForm, returnForm, borrowErrors, returnErrors, currentResult } = state
+  const {
+    state,
+    dispatch,
+    updateBorrow,
+    updateReturn,
+    resetPractice,
+    confirmBorrowWithErrors,
+    goBackToBorrow,
+    confirmReturnWithErrors,
+    goBackToReturn
+  } = usePractice()
+  const {
+    stage,
+    currentTask,
+    borrowForm,
+    returnForm,
+    borrowErrors,
+    returnErrors,
+    historicalBorrowErrors,
+    currentResult
+  } = state
 
   const handleGoToTasks = () => Taro.switchTab({ url: '/pages/tasks/index' })
   const handleGoToRecords = () => Taro.switchTab({ url: '/pages/records/index' })
@@ -27,35 +47,76 @@ const PracticePage: React.FC = () => {
     if (errors.length > 0) {
       Taro.vibrateShort({ type: 'light' })
     }
-    dispatch({ type: 'CONFIRM_BORROW' })
   }
 
-  const handleBackToBorrow = () => dispatch({ type: 'START_BORROW' })
+  const handleConfirmBorrowKeep = () => {
+    confirmBorrowWithErrors()
+  }
+
+  const handleBackToBorrow = () => {
+    goBackToBorrow()
+  }
 
   const handleSubmitReturn = () => {
     if (!currentTask) return
     console.log('[Practice] 归还校验:', returnForm)
     const errors = validateReturnForm(returnForm, currentTask)
     dispatch({ type: 'VALIDATE_RETURN', payload: errors })
+    if (errors.length > 0) {
+      Taro.vibrateShort({ type: 'light' })
+    } else {
+      handleCompletePractice(errors)
+    }
+  }
 
+  const handleCompletePractice = (finalReturnErrors = returnErrors) => {
+    if (!currentTask) return
     Taro.showLoading({ title: '正在评分...' })
     setTimeout(() => {
       const finalBorrowErrors =
-        borrowErrors.length > 0 ? borrowErrors : validateBorrowForm(borrowForm, currentTask)
+        borrowErrors.length > 0
+          ? borrowErrors
+          : validateBorrowForm(borrowForm, currentTask)
+      const historicalErrors = {
+        borrow: historicalBorrowErrors,
+        returned: []
+      }
       const result = calculateScore(
         currentTask,
         borrowForm,
         returnForm,
         finalBorrowErrors,
-        errors
+        finalReturnErrors,
+        historicalBorrowErrors.length > 0 || finalReturnErrors.length > 0
+          ? historicalErrors
+          : undefined
       )
       result.duration = Math.floor((Date.now() - state.startTime) / 1000)
-      console.log('[Practice] 成绩单:', result.totalScore, '/', result.maxScore,
-        '错误数:', result.scoreItems.filter(s => !s.passed).length)
+      console.log(
+        '[Practice] 成绩单:',
+        result.totalScore,
+        '/',
+        result.maxScore,
+        '错误数:',
+        result.scoreItems.filter(s => !s.passed).length,
+        '历史错误:',
+        historicalBorrowErrors.length
+      )
       dispatch({ type: 'COMPLETE_PRACTICE', payload: result })
       Taro.hideLoading()
       Taro.vibrateShort({ type: 'medium' })
     }, 600)
+  }
+
+  const handleConfirmReturnKeep = () => {
+    confirmReturnWithErrors()
+    setTimeout(() => {
+      handleCompletePractice(returnErrors)
+    }, 100)
+  }
+
+  const handleBackToReturn = () => {
+    goBackToReturn()
   }
 
   const handleRetry = () => {
@@ -102,19 +163,19 @@ const PracticePage: React.FC = () => {
       <View
         className={classnames(
           styles.stageTab,
-          stage === 'borrow' && styles.stageTabActive,
-          (stage === 'return' || stage === 'scoring') && styles.stageTabDone
+          (stage === 'borrow' || stage === 'confirm_borrow') && styles.stageTabActive,
+          (stage === 'return' || stage === 'confirm_return' || stage === 'scoring') && styles.stageTabDone
         )}
       >
         <Text className={styles.stageTabNo}>
-          {(stage === 'return' || stage === 'scoring') ? '✓' : '1'}
+          {stage === 'return' || stage === 'confirm_return' || stage === 'scoring' ? '✓' : '1'}
         </Text>
         <Text className={styles.stageTabText}>借出</Text>
       </View>
       <View
         className={classnames(
           styles.stageTab,
-          stage === 'return' && styles.stageTabActive,
+          (stage === 'return' || stage === 'confirm_return') && styles.stageTabActive,
           stage === 'scoring' && styles.stageTabDone
         )}
       >
@@ -166,6 +227,20 @@ const PracticePage: React.FC = () => {
             onSubmit={handleSubmitBorrow}
           />
         )}
+        {stage === 'confirm_borrow' && (
+          <View className={styles.confirmWrap}>
+            <ConfirmDialog
+              type="borrow"
+              title="借出环节发现问题"
+              description="以下错误会影响考核评分，你可以返回修改，或继续带着错误完成流程"
+              errors={borrowErrors}
+              confirmText="带着错误继续 →"
+              backText="返回修改"
+              onConfirm={handleConfirmBorrowKeep}
+              onBack={handleBackToBorrow}
+            />
+          </View>
+        )}
         {stage === 'return' && (
           <ReturnSection
             task={currentTask}
@@ -173,8 +248,22 @@ const PracticePage: React.FC = () => {
             errors={returnErrors}
             onChange={handleReturnChange}
             onSubmit={handleSubmitReturn}
-            onBack={handleBackToBorrow}
+            onBack={() => dispatch({ type: 'START_BORROW' })}
           />
+        )}
+        {stage === 'confirm_return' && (
+          <View className={styles.confirmWrap}>
+            <ConfirmDialog
+              type="return"
+              title="归还环节发现问题"
+              description="以下错误会影响考核评分，你可以返回修改，或提交评分并保留错误记录"
+              errors={returnErrors}
+              confirmText="带着错误提交评分"
+              backText="返回修改"
+              onConfirm={handleConfirmReturnKeep}
+              onBack={handleBackToReturn}
+            />
+          </View>
         )}
       </View>
     </View>

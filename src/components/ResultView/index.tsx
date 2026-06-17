@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
-import { PracticeResult, ScoreItem as ScoreItemType, Task } from '@/types'
+import { PracticeResult, ScoreItem as ScoreItemType, Task, ErrorCategory, ERROR_CATEGORY_LABELS } from '@/types'
 import ScoreItemComponent from '@/components/ScoreItem'
 import styles from './index.module.scss'
 import classnames from 'classnames'
@@ -19,6 +19,7 @@ interface ResultViewProps {
   onGoTasks?: () => void
   onRetry?: () => void
   compact?: boolean
+  highlightCategories?: ErrorCategory[]
 }
 
 const ResultView: React.FC<ResultViewProps> = ({
@@ -28,7 +29,8 @@ const ResultView: React.FC<ResultViewProps> = ({
   onGoRecords,
   onGoTasks,
   onRetry,
-  compact = false
+  compact = false,
+  highlightCategories = []
 }) => {
   const borrowItems = useMemo<ScoreItemType[]>(
     () => result.scoreItems.filter(s => s.category === '借出环节'),
@@ -44,6 +46,22 @@ const ResultView: React.FC<ResultViewProps> = ({
   const borrowAllPassed = borrowPassed === borrowItems.length
   const returnAllPassed = returnPassed === returnItems.length
 
+  const hasHighlight = highlightCategories.length > 0
+
+  const shouldHighlight = (item: ScoreItemType): boolean => {
+    if (!hasHighlight || !item.errorCategory) return false
+    return highlightCategories.includes(item.errorCategory)
+  }
+
+  const shouldHighlightError = (category: ErrorCategory): boolean => {
+    if (!hasHighlight) return false
+    return highlightCategories.includes(category)
+  }
+
+  const hasHistoricalErrors =
+    result.historicalErrors &&
+    (result.historicalErrors.borrow.length > 0 || result.historicalErrors.returned.length > 0)
+
   return (
     <ScrollView scrollY className={classnames(styles.page, compact && styles.compact)}>
       <View className={styles.resultHeader}>
@@ -57,6 +75,14 @@ const ResultView: React.FC<ResultViewProps> = ({
           <Text className={styles.resultSubtitle}>
             {result.aircraftNo} · 完成于 {result.completedAt}
           </Text>
+
+          {hasHighlight && (
+            <View className={styles.highlightHint}>
+              <Text className={styles.highlightHintText}>
+                🎯 已筛选高亮：{highlightCategories.map(c => ERROR_CATEGORY_LABELS[c]).join('、')}
+              </Text>
+            </View>
+          )}
 
           <View className={styles.scoreBoard}>
             <View className={styles.scoreMain}>
@@ -92,6 +118,48 @@ const ResultView: React.FC<ResultViewProps> = ({
       </View>
 
       <View className={styles.content}>
+        {hasHistoricalErrors && (
+          <View className={styles.section}>
+            <View className={styles.sectionHeader}>
+              <View className={styles.sectionTitle}>
+                <View className={classnames(styles.titleIcon, styles.titleIconHistory)}>📜</View>
+                <Text className={styles.sectionTitleText}>历史错误痕迹</Text>
+              </View>
+            </View>
+            <View className={styles.infoCard}>
+              <Text className={styles.historyHint}>
+                本次练习过程中曾出现以下错误（即使修改后也会保留痕迹，帮助你复盘学习过程）：
+              </Text>
+              {result.historicalErrors!.borrow.length > 0 && (
+                <View className={styles.historySection}>
+                  <Text className={styles.historyLabel}>借出环节曾错：</Text>
+                  {result.historicalErrors!.borrow.map((e, idx) => (
+                    <View key={`hb-${idx}`} className={styles.historyItem}>
+                      <Text className={styles.historyBadge}>
+                        {ERROR_CATEGORY_LABELS[e.category]}
+                      </Text>
+                      <Text className={styles.historyText}>✕ {e.message}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+              {result.historicalErrors!.returned.length > 0 && (
+                <View className={styles.historySection}>
+                  <Text className={styles.historyLabel}>归还环节曾错：</Text>
+                  {result.historicalErrors!.returned.map((e, idx) => (
+                    <View key={`hr-${idx}`} className={styles.historyItem}>
+                      <Text className={styles.historyBadge}>
+                        {ERROR_CATEGORY_LABELS[e.category]}
+                      </Text>
+                      <Text className={styles.historyText}>✕ {e.message}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+
         <View className={styles.section}>
           <View className={styles.infoCard}>
             {task && (
@@ -131,7 +199,11 @@ const ResultView: React.FC<ResultViewProps> = ({
             </View>
           </View>
           {borrowItems.map(item => (
-            <ScoreItemComponent key={item.id} item={item} />
+            <ScoreItemComponent
+              key={item.id}
+              item={item}
+              highlight={shouldHighlight(item)}
+            />
           ))}
         </View>
 
@@ -151,7 +223,11 @@ const ResultView: React.FC<ResultViewProps> = ({
             </View>
           </View>
           {returnItems.map(item => (
-            <ScoreItemComponent key={item.id} item={item} />
+            <ScoreItemComponent
+              key={item.id}
+              item={item}
+              highlight={shouldHighlight(item)}
+            />
           ))}
         </View>
 
@@ -166,8 +242,31 @@ const ResultView: React.FC<ResultViewProps> = ({
             <View className={styles.infoCard}>
               {[...result.borrowErrors, ...result.returnErrors].map((e, idx) => {
                 const total = result.borrowErrors.length + result.returnErrors.length
+                const isHighlighted = shouldHighlightError(e.category)
                 return (
-                  <View key={idx} style={{ marginBottom: idx < total - 1 ? '24rpx' : 0 }}>
+                  <View
+                    key={idx}
+                    className={classnames(
+                      styles.errorSummaryItem,
+                      isHighlighted && styles.errorSummaryItemHighlight
+                    )}
+                    style={{ marginBottom: idx < total - 1 ? '24rpx' : 0 }}
+                  >
+                    <View className={styles.errorSummaryHeader}>
+                      <View className={classnames(
+                        styles.errorCategoryBadge,
+                        isHighlighted && styles.errorCategoryBadgeHighlight
+                      )}>
+                        <Text className={styles.errorCategoryText}>
+                          {ERROR_CATEGORY_LABELS[e.category]}
+                        </Text>
+                      </View>
+                      {isHighlighted && (
+                        <View className={styles.highlightTag}>
+                          <Text className={styles.highlightTagText}>🎯 筛选匹配</Text>
+                        </View>
+                      )}
+                    </View>
                     <View className={styles.infoRow}>
                       <Text className={styles.infoLabel}>错误点</Text>
                       <Text className={classnames(styles.infoValue, styles.valueBad)}>

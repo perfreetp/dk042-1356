@@ -229,3 +229,122 @@
   font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
 }
+
+.enhancedStats {
+  margin-bottom: $spacing-md;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-sm;
+  background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+  border-radius: $radius-md;
+  padding: $spacing-md $spacing-sm;
+}
+
+.statsCell {
+  text-align: center;
+}
+
+.statsCellValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  display: block;
+  line-height: 1.2;
+}
+
+.statsCellLabel {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+  display: block;
+}
+
+.valueGood {
+  color: $color-success;
+}
+
+.valueWarn {
+  color: $color-warning;
+}
+
+.valueBad {
+  color: $color-error;
+}
+
+.valueHighlight {
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.actionButtons {
+  display: flex;
+  gap: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.actionBtn {
+  flex: 1;
+  height: 80rpx;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.actionBtnSecondary {
+  background: $color-bg-page;
+  border: 2rpx solid $color-border;
+}
+
+.actionBtnPrimary {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  box-shadow: 0 4rpx 12rpx rgba(59, 130, 246, 0.3);
+}
+
+.actionBtnIcon {
+  font-size: 28rpx;
+}
+
+.actionBtnTextSecondary {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+}
+
+.actionBtnTextPrimary {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+}
+
+.startBtn {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  padding: 12rpx 28rpx;
+  border-radius: $radius-button;
+  min-width: 160rpx;
+  @include flex-center;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.96);
+  }
+}
+
+.startBtnText {
+  color: $color-text-white;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}

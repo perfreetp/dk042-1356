@@ -167,3 +167,25 @@
   line-height: $line-height-normal;
   flex: 1;
 }
+
+.highlight {
+  box-shadow: 0 0 0 3rpx $color-accent, 0 8rpx 24rpx rgba(14, 165, 233, 0.25);
+  transform: scale(1.01);
+  transition: all 0.2s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 20rpx;
+    right: 20rpx;
+    width: 16rpx;
+    height: 16rpx;
+    border-radius: 50%;
+    background: $color-accent;
+    box-shadow: 0 0 0 6rpx rgba(14, 165, 233, 0.3);
+  }
+}
+
+.wrap {
+  position: relative;
+}

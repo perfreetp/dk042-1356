@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react'
 import Taro from '@tarojs/taro'
-import { PracticeState, PracticeAction, Task, BorrowForm, ReturnForm } from '@/types'
+import { PracticeState, PracticeAction, Task, BorrowForm, ReturnForm, FieldError } from '@/types'
 import { mockTasks, mockRecords } from '@/data/mockData'
 
 const STORAGE_KEYS = {
@@ -46,7 +46,7 @@ const saveToStorage = <T,>(key: string, value: T) => {
 const persistedRecords = loadFromStorage(STORAGE_KEYS.RECORDS, mockRecords)
 const persistedTasks = loadFromStorage(STORAGE_KEYS.TASKS, mockTasks)
 
-const initialState: PracticeState & { tasks: Task[] } = {
+const initialState: PracticeState & { tasks: Task[]; historicalBorrowErrors: FieldError[] } = {
   tasks: persistedTasks,
   currentTask: null,
   stage: 'idle',
@@ -54,16 +54,19 @@ const initialState: PracticeState & { tasks: Task[] } = {
   returnForm: { ...initialReturnForm },
   borrowErrors: [],
   returnErrors: [],
+  historicalBorrowErrors: [],
   currentResult: null,
   startTime: 0,
   records: persistedRecords
 }
 
-type ExtendedState = PracticeState & { tasks: Task[] }
+type ExtendedState = PracticeState & { tasks: Task[]; historicalBorrowErrors: FieldError[] }
 type ExtendedAction =
   | PracticeAction
   | { type: 'UPDATE_TASKS'; payload: Task[] }
   | { type: 'SHOW_RESULT' }
+  | { type: 'GO_BACK_BORROW_FROM_CONFIRM' }
+  | { type: 'GO_BACK_RETURN_FROM_CONFIRM' }
 
 function practiceReducer(
   state: ExtendedState,
@@ -83,6 +86,7 @@ function practiceReducer(
         returnForm: { ...initialReturnForm },
         borrowErrors: [],
         returnErrors: [],
+        historicalBorrowErrors: [],
         currentResult: null,
         startTime: Date.now()
       }
@@ -100,18 +104,33 @@ function practiceReducer(
         borrowForm: { ...state.borrowForm, ...action.payload }
       }
 
-    case 'VALIDATE_BORROW':
+    case 'VALIDATE_BORROW': {
+      const hasErrors = action.payload.length > 0
       return {
         ...state,
-        borrowErrors: action.payload
+        borrowErrors: action.payload,
+        stage: hasErrors ? 'confirm_borrow' : 'return'
       }
+    }
 
-    case 'CONFIRM_BORROW':
+    case 'CONFIRM_BORROW': {
+      const { keepErrors } = action.payload
       return {
         ...state,
         stage: 'return',
         returnForm: { ...initialReturnForm },
-        returnErrors: []
+        returnErrors: [],
+        historicalBorrowErrors: keepErrors
+          ? [...state.historicalBorrowErrors, ...state.borrowErrors]
+          : state.historicalBorrowErrors,
+        borrowErrors: keepErrors ? state.borrowErrors : []
+      }
+    }
+
+    case 'GO_BACK_BORROW_FROM_CONFIRM':
+      return {
+        ...state,
+        stage: 'borrow'
       }
 
     case 'UPDATE_RETURN':
@@ -120,10 +139,19 @@ function practiceReducer(
         returnForm: { ...state.returnForm, ...action.payload }
       }
 
-    case 'VALIDATE_RETURN':
+    case 'VALIDATE_RETURN': {
+      const hasErrors = action.payload.length > 0
       return {
         ...state,
-        returnErrors: action.payload
+        returnErrors: action.payload,
+        stage: hasErrors ? 'confirm_return' : 'scoring'
+      }
+    }
+
+    case 'GO_BACK_RETURN_FROM_CONFIRM':
+      return {
+        ...state,
+        stage: 'return'
       }
 
     case 'COMPLETE_PRACTICE': {
@@ -147,9 +175,13 @@ function practiceReducer(
       })
       saveToStorage(STORAGE_KEYS.TASKS, newTasks)
 
+      const stageToUse = action.payload.borrowErrors.length > 0 || action.payload.returnErrors.length > 0
+        ? 'scoring'
+        : 'scoring'
+
       return {
         ...state,
-        stage: 'scoring',
+        stage: stageToUse,
         currentResult: action.payload,
         records: newRecords,
         tasks: newTasks
@@ -168,6 +200,7 @@ function practiceReducer(
         returnForm: { ...initialReturnForm },
         borrowErrors: [],
         returnErrors: [],
+        historicalBorrowErrors: [],
         currentResult: null,
         startTime: 0
       }
@@ -188,6 +221,12 @@ interface PracticeContextValue {
   updateBorrow: (form: Partial<BorrowForm>) => void
   updateReturn: (form: Partial<ReturnForm>) => void
   resetPractice: () => void
+  validateAndNextBorrow: () => void
+  confirmBorrowWithErrors: () => void
+  goBackToBorrow: () => void
+  validateAndNextReturn: () => void
+  confirmReturnWithErrors: () => void
+  goBackToReturn: () => void
 }
 
 const PracticeContext = createContext<PracticeContextValue | undefined>(undefined)
@@ -218,9 +257,45 @@ export const PracticeProvider: React.FC<{ children: ReactNode }> = ({ children }
     dispatch({ type: 'RESET_PRACTICE' })
   }
 
+  const validateAndNextBorrow = () => {
+    dispatch({ type: 'START_BORROW' })
+  }
+
+  const confirmBorrowWithErrors = () => {
+    dispatch({ type: 'CONFIRM_BORROW', payload: { keepErrors: true } })
+  }
+
+  const goBackToBorrow = () => {
+    dispatch({ type: 'GO_BACK_BORROW_FROM_CONFIRM' })
+  }
+
+  const validateAndNextReturn = () => {
+  }
+
+  const confirmReturnWithErrors = () => {
+    dispatch({ type: 'CONFIRM_RETURN', payload: { keepErrors: true } })
+  }
+
+  const goBackToReturn = () => {
+    dispatch({ type: 'GO_BACK_RETURN_FROM_CONFIRM' })
+  }
+
   return (
     <PracticeContext.Provider
-      value={{ state, dispatch, selectTask, updateBorrow, updateReturn, resetPractice }}
+      value={{
+        state,
+        dispatch,
+        selectTask,
+        updateBorrow,
+        updateReturn,
+        resetPractice,
+        validateAndNextBorrow,
+        confirmBorrowWithErrors,
+        goBackToBorrow,
+        validateAndNextReturn,
+        confirmReturnWithErrors,
+        goBackToReturn
+      }}
     >
       {children}
     </PracticeContext.Provider>

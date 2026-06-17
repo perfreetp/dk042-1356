@@ -177,3 +177,11 @@
   font-weight: $font-weight-medium;
   color: $color-text-secondary;
 }
+
+.confirmWrap {
+  padding: $spacing-lg $page-padding;
+  flex: 1;
+  @include flex-center;
+  align-items: stretch;
+  overflow-y: auto;
+}

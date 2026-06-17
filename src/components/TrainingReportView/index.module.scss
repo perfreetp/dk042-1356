@@ -1,0 +1,413 @@
+@use '@/styles/variables.scss' as *;
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  width: 100%;
+  max-height: 90vh;
+  background: $color-bg-page;
+  border-radius: $radius-xl $radius-xl 0 0;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-lg $page-padding;
+  background: linear-gradient(135deg, #7C3AED 0%, #0EA5E9 100%);
+  position: relative;
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.headerIcon {
+  font-size: 48rpx;
+}
+
+.headerTitleText {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  display: block;
+}
+
+.headerSub {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 2rpx;
+  display: block;
+}
+
+.closeBtn {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-round;
+  background: rgba(255, 255, 255, 0.2);
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.closeBtnText {
+  font-size: $font-size-lg;
+  color: $color-text-white;
+  font-weight: $font-weight-bold;
+}
+
+.content {
+  max-height: calc(90vh - 140rpx);
+  padding: $spacing-lg $page-padding;
+}
+
+.overview {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-xl;
+  box-shadow: $shadow-card;
+}
+
+.overviewHeader {
+  margin-bottom: $spacing-lg;
+}
+
+.overviewGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+}
+
+.overviewCell {
+  background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  text-align: center;
+}
+
+.overviewValue {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  display: block;
+  line-height: 1.2;
+}
+
+.overviewLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+  display: block;
+}
+
+.valueGood {
+  color: $color-success;
+}
+
+.valueWarn {
+  color: $color-warning;
+}
+
+.valueBad {
+  color: $color-error;
+}
+
+.section {
+  margin-bottom: $spacing-xl;
+}
+
+.sectionHeader {
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.sectionSub {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  display: block;
+}
+
+.errorItem {
+  display: flex;
+  gap: $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.errorRank {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  background: linear-gradient(135deg, #7C3AED 0%, #0EA5E9 100%);
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.errorRankText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+}
+
+.errorIcon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-md;
+  background: #FEF3C7;
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.errorIconText {
+  font-size: 28rpx;
+}
+
+.errorInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.errorTopRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-xs;
+}
+
+.errorName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  flex: 1;
+}
+
+.severityBadge {
+  padding: 4rpx 12rpx;
+  border-radius: $radius-xs;
+  flex-shrink: 0;
+}
+
+.severityCritical {
+  background: #FEE2E2;
+  .severityText {
+    color: $color-error;
+  }
+}
+
+.severityWarning {
+  background: #FEF3C7;
+  .severityText {
+    color: $color-warning;
+  }
+}
+
+.severityInfo {
+  background: #DBEAFE;
+  .severityText {
+    color: $color-info;
+  }
+}
+
+.severityText {
+  font-size: 20rpx;
+  font-weight: $font-weight-semibold;
+}
+
+.errorCount {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  display: block;
+  margin-bottom: $spacing-sm;
+}
+
+.errorProgress {
+  height: 8rpx;
+  background: #F1F5F9;
+  border-radius: $radius-round;
+  overflow: hidden;
+  margin-bottom: $spacing-sm;
+}
+
+.errorProgressBar {
+  height: 100%;
+  border-radius: $radius-round;
+  transition: width 0.3s ease;
+}
+
+.errorHint {
+  font-size: $font-size-sm;
+  color: #0369A1;
+  background: #E0F2FE;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  display: block;
+  line-height: $line-height-normal;
+}
+
+.weakPointItem {
+  display: flex;
+  gap: $spacing-md;
+  background: #FFFBEB;
+  border: 1rpx solid #FDE68A;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.weakPointIcon {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  background: #F59E0B;
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.weakPointIconText {
+  font-size: 24rpx;
+}
+
+.weakPointInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.weakPointTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: #92400E;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.weakPointDesc {
+  font-size: $font-size-sm;
+  color: #B45309;
+  line-height: $line-height-normal;
+}
+
+.recommendItem {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.recommendInfo {
+  margin-bottom: $spacing-md;
+}
+
+.recommendTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.recommendMeta {
+  margin-bottom: $spacing-sm;
+}
+
+.recommendReason {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.recommendMetaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.recommendScore {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-medium;
+}
+
+.recommendActions {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.recommendBtnSecondary {
+  padding: $spacing-xs $spacing-md;
+  background: $color-bg-page;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-button;
+}
+
+.recommendBtnSecondaryText {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+}
+
+.recommendBtnPrimary {
+  padding: $spacing-xs $spacing-md;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-button;
+}
+
+.recommendBtnPrimaryText {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+}
