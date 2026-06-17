@@ -2,8 +2,7 @@ export default defineAppConfig({
   pages: [
     'pages/tasks/index',
     'pages/practice/index',
-    'pages/records/index',
-    'pages/result/index'
+    'pages/records/index'
   ],
   window: {
     backgroundTextStyle: 'light',

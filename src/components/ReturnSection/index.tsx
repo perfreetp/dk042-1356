@@ -201,11 +201,20 @@ const ReturnSection: React.FC<ReturnSectionProps> = ({ task, form, errors, onCha
       </ScrollView>
 
       <View className={styles.footerBar}>
-        <View className={styles.backBtn} onClick={onBack}>
-          <Text className={styles.backText}>← 返回借出</Text>
-        </View>
-        <View className={styles.submitBtn} onClick={onSubmit}>
-          <Text className={styles.submitText}>提交评分</Text>
+        {errors.length > 0 && (
+          <View className={styles.hintBar}>
+            <Text className={styles.hintBarText}>⚠ 仍有 {errors.length} 项错误，可直接提交或返回修改</Text>
+          </View>
+        )}
+        <View className={styles.btnRow}>
+          <View className={styles.backBtn} onClick={onBack}>
+            <Text className={styles.backText}>← 返回借出</Text>
+          </View>
+          <View className={styles.submitBtn} onClick={onSubmit}>
+            <Text className={styles.submitText}>
+              {errors.length > 0 ? '带着错误提交评分' : '提交评分'}
+            </Text>
+          </View>
         </View>
       </View>
     </View>

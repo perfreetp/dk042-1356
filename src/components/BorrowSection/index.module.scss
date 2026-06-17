@@ -226,6 +226,21 @@
   box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
 }
 
+.hintBar {
+  background: #FFFBEB;
+  border: 1rpx solid #FDE68A;
+  border-radius: $radius-md;
+  padding: $spacing-sm $spacing-md;
+  margin-bottom: $spacing-sm;
+  text-align: center;
+}
+
+.hintBarText {
+  font-size: $font-size-sm;
+  color: #92400E;
+  font-weight: $font-weight-medium;
+}
+
 .submitBtn {
   height: $button-height-lg;
   background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);

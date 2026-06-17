@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { mockTasks } from '@/data/mockData'
 import { Task, TaskStatus } from '@/types'
 import { usePractice } from '@/store/PracticeContext'
 import TaskCard from '@/components/TaskCard'
@@ -20,24 +19,25 @@ const filterOptions: { value: FilterType; label: string }[] = [
 const TasksPage: React.FC = () => {
   const [filter, setFilter] = useState<FilterType>('all')
   const { selectTask, state } = usePractice()
+  const { tasks, records } = state
 
   const filteredTasks = useMemo(() => {
-    if (filter === 'all') return mockTasks
-    return mockTasks.filter(t => t.status === filter)
-  }, [filter])
+    if (filter === 'all') return tasks
+    return tasks.filter(t => t.status === filter)
+  }, [tasks, filter])
 
   const stats = useMemo(() => {
-    const total = mockTasks.length
-    const completed = mockTasks.filter(t => t.status === 'completed').length
-    const records = state.records.length
-    const avgScore = records > 0
-      ? Math.round(state.records.reduce((s, r) => s + r.passRate, 0) / records)
+    const total = tasks.length
+    const completed = tasks.filter(t => t.status === 'completed').length
+    const recordCount = records.length
+    const avgScore = recordCount > 0
+      ? Math.round(records.reduce((s, r) => s + r.passRate, 0) / recordCount)
       : 0
-    return { total, completed, records, avgScore }
-  }, [state.records])
+    return { total, completed, records: recordCount, avgScore }
+  }, [tasks, records])
 
   const handleSelectTask = (task: Task) => {
-    console.log('[Tasks] 选择任务:', task.id, task.title)
+    console.log('[Tasks] 选择任务:', task.id, task.title, '当前状态:', task.status)
     selectTask(task)
     Taro.switchTab({
       url: '/pages/practice/index'
@@ -78,7 +78,7 @@ const TasksPage: React.FC = () => {
             </View>
             <View className={styles.statItem}>
               <Text className={styles.statValue}>{stats.records}</Text>
-              <Text className={styles.statLabel}>练习记录</Text>
+              <Text className={styles.statLabel}>练习次数</Text>
             </View>
           </View>
         </View>

@@ -166,8 +166,15 @@ const BorrowSection: React.FC<BorrowSectionProps> = ({ task, form, errors, onCha
       </ScrollView>
 
       <View className={styles.footerBar}>
+        {errors.length > 0 && (
+          <View className={styles.hintBar}>
+            <Text className={styles.hintBarText}>⚠ 仍有 {errors.length} 项错误，可继续或返回修改</Text>
+          </View>
+        )}
         <View className={styles.submitBtn} onClick={onSubmit}>
-          <Text className={styles.submitText}>确认借出，进入归还环节 →</Text>
+          <Text className={styles.submitText}>
+            {errors.length > 0 ? '带着错误继续下一步 →' : '确认借出，进入归还环节 →'}
+          </Text>
         </View>
       </View>
     </View>

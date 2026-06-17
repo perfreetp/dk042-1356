@@ -301,6 +301,37 @@
   color: $color-primary;
 }
 
+.recordGroup {
+  margin-bottom: $spacing-md;
+}
+
+.expandedBox {
+  background: $color-bg-card;
+  border-radius: 0 0 $radius-lg $radius-lg;
+  margin-top: -$spacing-md;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  border-top: 1rpx solid $color-divider;
+  overflow: hidden;
+}
+
+.collapseBtn {
+  padding: $spacing-md;
+  text-align: center;
+  background: $color-bg-page;
+  border-top: 1rpx solid $color-divider;
+
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.collapseBtnText {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+}
+
 .emptyState {
   padding: 120rpx $spacing-xl;
   text-align: center;

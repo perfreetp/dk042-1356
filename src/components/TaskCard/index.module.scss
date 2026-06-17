@@ -172,6 +172,39 @@
   border-top: 1rpx solid $color-divider;
 }
 
+.statsRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.statBadge {
+  padding: 6rpx 16rpx;
+  border-radius: $radius-sm;
+  background: $color-bg-tag-blue;
+}
+
+.statBadgeOk {
+  background: $color-bg-tag-green;
+  .statBadgeText {
+    color: $color-success;
+  }
+}
+
+.statBadgeWarn {
+  background: $color-bg-tag-orange;
+  .statBadgeText {
+    color: $color-warning;
+  }
+}
+
+.statBadgeText {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-info;
+}
+
 .createdAt {
   font-size: $font-size-xs;
   color: $color-text-tertiary;

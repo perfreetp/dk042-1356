@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text } from '@tarojs/components'
 import { Task } from '@/types'
+import { usePractice } from '@/store/PracticeContext'
 import { getDifficultyLabel, getStatusLabel } from '@/utils/scorer'
 import styles from './index.module.scss'
 import classnames from 'classnames'
@@ -12,6 +13,14 @@ interface TaskCardProps {
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, selected }) => {
+  const { state } = usePractice()
+  const taskRecords = state.records.filter(r => r.taskId === task.id)
+  const practiceCount = taskRecords.length
+  const avgScore =
+    practiceCount > 0
+      ? Math.round(taskRecords.reduce((s, r) => s + r.passRate, 0) / practiceCount)
+      : 0
+
   const difficultyClass = {
     easy: styles.difficultyEasy,
     medium: styles.difficultyMedium,
@@ -61,11 +70,31 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, selected }) => {
         </View>
       </View>
 
+      {practiceCount > 0 && (
+        <View className={styles.statsRow}>
+          <View className={styles.statBadge}>
+            <Text className={styles.statBadgeText}>练习 {practiceCount} 次</Text>
+          </View>
+          <View className={classnames(
+            styles.statBadge,
+            avgScore >= 80 ? styles.statBadgeOk : styles.statBadgeWarn
+          )}>
+            <Text className={styles.statBadgeText}>平均分 {avgScore}</Text>
+          </View>
+        </View>
+      )}
+
       <View className={styles.footer}>
         <Text className={styles.createdAt}>{task.createdAt}</Text>
         <View className={styles.actionBtn}>
           <Text className={styles.actionText}>
-            {task.status === 'completed' ? '查看详情' : task.status === 'in_progress' ? '继续练习' : '开始练习'}
+            {task.status === 'completed'
+              ? practiceCount > 1
+                ? '再练一次'
+                : '查看/复练'
+              : task.status === 'in_progress'
+                ? '继续练习'
+                : '开始练习'}
           </Text>
         </View>
       </View>

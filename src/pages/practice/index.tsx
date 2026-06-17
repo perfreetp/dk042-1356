@@ -1,98 +1,66 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { usePractice } from '@/store/PracticeContext'
 import { validateBorrowForm, validateReturnForm, calculateScore } from '@/utils/scorer'
 import BorrowSection from '@/components/BorrowSection'
 import ReturnSection from '@/components/ReturnSection'
+import ResultView from '@/components/ResultView'
 import styles from './index.module.scss'
 import classnames from 'classnames'
 
 const PracticePage: React.FC = () => {
   const { state, dispatch, updateBorrow, updateReturn, resetPractice } = usePractice()
-  const { stage, currentTask, borrowForm, returnForm, borrowErrors, returnErrors } = state
+  const { stage, currentTask, borrowForm, returnForm, borrowErrors, returnErrors, currentResult } = state
 
-  useEffect(() => {
-    if (stage === 'completed' && state.currentResult) {
-      console.log('[Practice] 完成练习，跳转评分页:', state.currentResult.id)
-      Taro.navigateTo({
-        url: `/pages/result/index?recordId=${state.currentResult.id}`
-      })
-    }
-  }, [stage, state.currentResult])
+  const handleGoToTasks = () => Taro.switchTab({ url: '/pages/tasks/index' })
+  const handleGoToRecords = () => Taro.switchTab({ url: '/pages/records/index' })
 
-  const handleGoToTasks = () => {
-    Taro.switchTab({ url: '/pages/tasks/index' })
-  }
-
-  const handleBorrowChange = (form: Partial<typeof borrowForm>) => {
-    updateBorrow(form)
-  }
-
-  const handleReturnChange = (form: Partial<typeof returnForm>) => {
-    updateReturn(form)
-  }
+  const handleBorrowChange = (form: Partial<typeof borrowForm>) => updateBorrow(form)
+  const handleReturnChange = (form: Partial<typeof returnForm>) => updateReturn(form)
 
   const handleSubmitBorrow = () => {
     if (!currentTask) return
-    console.log('[Practice] 提交借出校验:', borrowForm)
+    console.log('[Practice] 借出校验:', borrowForm)
     const errors = validateBorrowForm(borrowForm, currentTask)
     dispatch({ type: 'VALIDATE_BORROW', payload: errors })
-
     if (errors.length > 0) {
-      Taro.vibrateShort({ type: 'medium' })
-      Taro.showToast({
-        title: `发现 ${errors.length} 个问题`,
-        icon: 'none',
-        duration: 2000
-      })
-      return
+      Taro.vibrateShort({ type: 'light' })
     }
-
-    Taro.showToast({
-      title: '借出信息校验通过',
-      icon: 'success',
-      duration: 1000
-    })
-    setTimeout(() => {
-      dispatch({ type: 'CONFIRM_BORROW' })
-    }, 600)
+    dispatch({ type: 'CONFIRM_BORROW' })
   }
 
-  const handleBackToBorrow = () => {
-    dispatch({ type: 'START_BORROW' })
-  }
+  const handleBackToBorrow = () => dispatch({ type: 'START_BORROW' })
 
   const handleSubmitReturn = () => {
     if (!currentTask) return
-    console.log('[Practice] 提交归还校验:', returnForm)
+    console.log('[Practice] 归还校验:', returnForm)
     const errors = validateReturnForm(returnForm, currentTask)
     dispatch({ type: 'VALIDATE_RETURN', payload: errors })
 
-    if (errors.length > 0) {
-      Taro.vibrateShort({ type: 'medium' })
-      Taro.showToast({
-        title: `发现 ${errors.length} 个问题`,
-        icon: 'none',
-        duration: 2000
-      })
-      return
-    }
-
     Taro.showLoading({ title: '正在评分...' })
     setTimeout(() => {
+      const finalBorrowErrors =
+        borrowErrors.length > 0 ? borrowErrors : validateBorrowForm(borrowForm, currentTask)
       const result = calculateScore(
         currentTask,
         borrowForm,
         returnForm,
-        borrowErrors,
+        finalBorrowErrors,
         errors
       )
       result.duration = Math.floor((Date.now() - state.startTime) / 1000)
-      console.log('[Practice] 评分结果:', result.totalScore, '/', result.maxScore)
+      console.log('[Practice] 成绩单:', result.totalScore, '/', result.maxScore,
+        '错误数:', result.scoreItems.filter(s => !s.passed).length)
       dispatch({ type: 'COMPLETE_PRACTICE', payload: result })
       Taro.hideLoading()
-    }, 800)
+      Taro.vibrateShort({ type: 'medium' })
+    }, 600)
+  }
+
+  const handleRetry = () => {
+    console.log('[Practice] 重置练习')
+    resetPractice()
   }
 
   const renderIdle = () => (
@@ -120,7 +88,7 @@ const PracticePage: React.FC = () => {
         </View>
         <View className={styles.tipItem}>
           <View className={styles.tipNum}>4</View>
-          <Text className={styles.tipText}>查看评分结果，针对错误点反复强化</Text>
+          <Text className={styles.tipText}>成绩单会记录你犯过的错并给出正确做法</Text>
         </View>
       </View>
       <View className={styles.gotoBtn} onClick={handleGoToTasks}>
@@ -135,11 +103,11 @@ const PracticePage: React.FC = () => {
         className={classnames(
           styles.stageTab,
           stage === 'borrow' && styles.stageTabActive,
-          (stage === 'return' || stage === 'completed') && styles.stageTabDone
+          (stage === 'return' || stage === 'scoring') && styles.stageTabDone
         )}
       >
         <Text className={styles.stageTabNo}>
-          {(stage === 'return' || stage === 'completed') ? '✓' : '1'}
+          {(stage === 'return' || stage === 'scoring') ? '✓' : '1'}
         </Text>
         <Text className={styles.stageTabText}>借出</Text>
       </View>
@@ -147,18 +115,18 @@ const PracticePage: React.FC = () => {
         className={classnames(
           styles.stageTab,
           stage === 'return' && styles.stageTabActive,
-          stage === 'completed' && styles.stageTabDone
+          stage === 'scoring' && styles.stageTabDone
         )}
       >
         <Text className={styles.stageTabNo}>
-          {stage === 'completed' ? '✓' : '2'}
+          {stage === 'scoring' ? '✓' : '2'}
         </Text>
         <Text className={styles.stageTabText}>归还</Text>
       </View>
       <View
         className={classnames(
           styles.stageTab,
-          stage === 'completed' && styles.stageTabActive
+          stage === 'scoring' && styles.stageTabActive
         )}
       >
         <Text className={styles.stageTabNo}>3</Text>
@@ -169,6 +137,20 @@ const PracticePage: React.FC = () => {
 
   if (stage === 'idle' || !currentTask) {
     return <View className={styles.page}>{renderIdle()}</View>
+  }
+
+  if (stage === 'scoring' && currentResult) {
+    return (
+      <View className={styles.page}>
+        <ResultView
+          result={currentResult}
+          task={currentTask}
+          onGoRecords={handleGoToRecords}
+          onGoTasks={handleGoToTasks}
+          onRetry={handleRetry}
+        />
+      </View>
+    )
   }
 
   return (
