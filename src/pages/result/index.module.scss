@@ -1,0 +1,320 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 200rpx;
+}
+
+.resultHeader {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 50%, $color-secondary 100%);
+  padding: $spacing-xl $page-padding;
+  padding-top: calc(#{$spacing-xl} + env(safe-area-inset-top));
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -100rpx;
+    right: -50rpx;
+    width: 300rpx;
+    height: 300rpx;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: $radius-round;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -80rpx;
+    left: -30rpx;
+    width: 200rpx;
+    height: 200rpx;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: $radius-round;
+  }
+}
+
+.headerInner {
+  position: relative;
+  z-index: 1;
+}
+
+.resultBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6rpx 20rpx;
+  border-radius: $radius-button;
+  background: rgba(255, 255, 255, 0.2);
+  margin-bottom: $spacing-md;
+  backdrop-filter: blur(10px);
+}
+
+.resultBadgeText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.resultTitle {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.resultSubtitle {
+  font-size: $font-size-md;
+  color: rgba(255, 255, 255, 0.85);
+  display: block;
+  margin-bottom: $spacing-xl;
+}
+
+.scoreBoard {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+}
+
+.scoreMain {
+  text-align: center;
+  padding-right: $spacing-xl;
+  margin-right: $spacing-xl;
+  border-right: 1rpx solid $color-divider;
+  flex-shrink: 0;
+}
+
+.scoreNumber {
+  font-size: 120rpx;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  display: block;
+  line-height: 1;
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.scoreUnit {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  display: block;
+  margin-top: 4rpx;
+}
+
+.scoreMeta {
+  flex: 1;
+  min-width: 0;
+}
+
+.scoreRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.scoreRowLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.scoreRowValue {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.valueGood {
+  color: $color-success;
+}
+
+.valueBad {
+  color: $color-error;
+}
+
+.content {
+  padding: $spacing-lg $page-padding;
+}
+
+.section {
+  margin-bottom: $spacing-xl;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+}
+
+.titleIcon {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-sm;
+  @include flex-center;
+  margin-right: $spacing-sm;
+  font-size: $font-size-lg;
+}
+
+.titleIconBorrow {
+  background: $color-bg-tag-blue;
+}
+
+.titleIconReturn {
+  background: $color-bg-tag-green;
+}
+
+.titleIconSummary {
+  background: $color-bg-tag-orange;
+}
+
+.sectionTitleText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.sectionSummary {
+  font-size: $font-size-sm;
+  padding: 4rpx 14rpx;
+  border-radius: $radius-xs;
+}
+
+.summaryOk {
+  background: $color-bg-tag-green;
+  color: $color-success;
+}
+
+.summaryBad {
+  background: $color-bg-tag-red;
+  color: $color-error;
+}
+
+.infoCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+}
+
+.infoRow {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.infoLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  width: 160rpx;
+  flex-shrink: 0;
+}
+
+.infoValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  flex: 1;
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
+}
+
+.actionBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  background: $color-bg-card;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: $spacing-md;
+}
+
+.actionBtnSecondary {
+  flex: 1;
+  height: $button-height-lg;
+  background: $color-bg-page;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-button;
+  @include flex-center;
+  transition: all $transition-base;
+
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.actionBtnSecondaryText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+}
+
+.actionBtnPrimary {
+  flex: 1;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-button;
+  @include flex-center;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.actionBtnPrimaryText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+}
+
+.notFound {
+  padding: 200rpx $spacing-xl;
+  text-align: center;
+}
+
+.notFoundText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+  display: block;
+  margin-bottom: $spacing-lg;
+}
+
+.notFoundBtn {
+  display: inline-block;
+  padding: $spacing-sm $spacing-xl;
+  background: $color-primary;
+  border-radius: $radius-button;
+
+  .notFoundBtnText {
+    color: $color-text-white;
+    font-size: $font-size-md;
+    font-weight: $font-weight-semibold;
+  }
+}

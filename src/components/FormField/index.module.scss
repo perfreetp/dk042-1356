@@ -1,0 +1,119 @@
+@use '@/styles/variables.scss' as *;
+
+.wrap {
+  margin-bottom: $spacing-lg;
+}
+
+.hasError {
+  .label {
+    color: $color-error;
+  }
+}
+
+.labelRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+}
+
+.label {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.requiredMark {
+  color: $color-error;
+  font-size: $font-size-md;
+}
+
+.hint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.control {
+  border: 2rpx solid $color-border;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  background: $color-bg-card;
+  transition: all $transition-base;
+}
+
+.controlError {
+  border-color: $color-error;
+  background: #FEF2F2;
+}
+
+.errorBox {
+  margin-top: $spacing-sm;
+  background: #FEF2F2;
+  border: 1rpx solid #FECACA;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+}
+
+.errorHeader {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: $spacing-sm;
+}
+
+.errorIcon {
+  color: $color-error;
+  font-size: $font-size-sm;
+  margin-right: $spacing-xs;
+  font-weight: $font-weight-bold;
+  flex-shrink: 0;
+  width: 32rpx;
+  height: 32rpx;
+  background: $color-error;
+  color: $color-text-white;
+  border-radius: $radius-round;
+  text-align: center;
+  line-height: 32rpx;
+  font-size: 20rpx;
+}
+
+.errorMsg {
+  font-size: $font-size-sm;
+  color: $color-error;
+  font-weight: $font-weight-medium;
+  flex: 1;
+  line-height: $line-height-normal;
+}
+
+.correctBox {
+  display: flex;
+  align-items: flex-start;
+  background: #F0FDF4;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-sm;
+  border: 1rpx solid #BBF7D0;
+}
+
+.correctIcon {
+  color: $color-success;
+  font-size: $font-size-sm;
+  margin-right: $spacing-xs;
+  font-weight: $font-weight-bold;
+  flex-shrink: 0;
+  width: 32rpx;
+  height: 32rpx;
+  background: $color-success;
+  color: $color-text-white;
+  border-radius: $radius-round;
+  text-align: center;
+  line-height: 32rpx;
+  font-size: 20rpx;
+}
+
+.correctText {
+  font-size: $font-size-sm;
+  color: $color-success;
+  flex: 1;
+  line-height: $line-height-normal;
+}

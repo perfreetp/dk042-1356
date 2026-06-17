@@ -1,0 +1,169 @@
+@use '@/styles/variables.scss' as *;
+
+.wrap {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  margin-bottom: $spacing-md;
+  overflow: hidden;
+  border-left: 6rpx solid transparent;
+}
+
+.passed {
+  border-left-color: $color-success;
+}
+
+.failed {
+  border-left-color: $color-error;
+}
+
+.header {
+  display: flex;
+  padding: $spacing-md;
+  gap: $spacing-md;
+}
+
+.iconWrap {
+  flex-shrink: 0;
+}
+
+.icon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-round;
+  display: block;
+  text-align: center;
+  line-height: 56rpx;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+}
+
+.iconOk {
+  background: $color-bg-tag-green;
+  color: $color-success;
+}
+
+.iconBad {
+  background: $color-bg-tag-red;
+  color: $color-error;
+}
+
+.headerMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-xs;
+}
+
+.category {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-medium;
+}
+
+.scoreBadge {
+  padding: 4rpx 14rpx;
+  border-radius: $radius-xs;
+}
+
+.scoreOk {
+  background: $color-bg-tag-green;
+  .scoreText {
+    color: $color-success;
+  }
+}
+
+.scoreBad {
+  background: $color-bg-tag-red;
+  .scoreText {
+    color: $color-error;
+  }
+}
+
+.scoreText {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  font-family: 'Courier New', monospace;
+}
+
+.description {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  line-height: $line-height-normal;
+}
+
+.detail {
+  padding: 0 $spacing-md $spacing-md;
+  margin: 0 $spacing-md;
+  border-top: 1rpx dashed $color-divider;
+  padding-top: $spacing-md;
+}
+
+.detailRow {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: $spacing-sm;
+
+  &:last-of-type {
+    margin-bottom: $spacing-md;
+  }
+}
+
+.detailLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  width: 140rpx;
+  flex-shrink: 0;
+}
+
+.detailValue {
+  font-size: $font-size-sm;
+  flex: 1;
+  font-weight: $font-weight-medium;
+  word-break: break-all;
+}
+
+.valueOk {
+  color: $color-success;
+}
+
+.valueBad {
+  color: $color-error;
+  text-decoration: line-through;
+  text-decoration-color: rgba(239, 68, 68, 0.5);
+}
+
+.detailCorrect {
+  font-size: $font-size-sm;
+  color: $color-success;
+  font-weight: $font-weight-semibold;
+  flex: 1;
+  word-break: break-all;
+}
+
+.feedbackBox {
+  display: flex;
+  align-items: flex-start;
+  background: #FFFBEB;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-sm;
+  border: 1rpx solid #FDE68A;
+}
+
+.feedbackIcon {
+  font-size: $font-size-md;
+  margin-right: $spacing-xs;
+  flex-shrink: 0;
+}
+
+.feedbackText {
+  font-size: $font-size-sm;
+  color: #92400E;
+  line-height: $line-height-normal;
+  flex: 1;
+}

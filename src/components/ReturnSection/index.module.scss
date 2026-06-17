@@ -1,0 +1,333 @@
+@use '@/styles/variables.scss' as *;
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: $color-bg-page;
+}
+
+.stageHeader {
+  display: flex;
+  align-items: center;
+  padding: $spacing-lg $page-padding;
+  background: linear-gradient(135deg, $color-airworthiness 0%, $color-secondary 100%);
+}
+
+.stageBadge {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-round;
+  background: rgba(255, 255, 255, 0.2);
+  @include flex-center;
+  margin-right: $spacing-md;
+}
+
+.stageNo {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+}
+
+.stageTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+  display: block;
+}
+
+.stageSubtitle {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 4rpx;
+  display: block;
+}
+
+.formScroll {
+  flex: 1;
+  padding: $spacing-md $page-padding;
+  box-sizing: border-box;
+}
+
+.summaryCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  box-shadow: $shadow-card;
+  border-left: 6rpx solid $color-success;
+}
+
+.summaryLabel {
+  display: inline-block;
+  background: $color-bg-tag-green;
+  color: $color-success;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  padding: 4rpx 12rpx;
+  border-radius: $radius-xs;
+  margin-bottom: $spacing-md;
+}
+
+.summaryRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-xs;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.summaryKey {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  width: 140rpx;
+  flex-shrink: 0;
+}
+
+.summaryValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  font-family: 'Courier New', monospace;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  margin: $spacing-md 0 $spacing-md;
+}
+
+.titleDot {
+  width: 8rpx;
+  height: 32rpx;
+  background: $color-airworthiness;
+  border-radius: $radius-xs;
+  margin-right: $spacing-sm;
+}
+
+.titleText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.optionsList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.optionCard {
+  background: #F8FAFC;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  transition: all $transition-base;
+}
+
+.optionSelected {
+  border-color: $color-primary;
+  background: $color-bg-card;
+}
+
+.optSuccess {
+  border-color: $color-success !important;
+  background: #F0FDF4 !important;
+}
+
+.optWarning {
+  border-color: $color-warning !important;
+  background: #FFFBEB !important;
+}
+
+.optError {
+  border-color: $color-error !important;
+  background: #FEF2F2 !important;
+}
+
+.optGray {
+  border-color: $color-text-tertiary !important;
+  background: #F8FAFC !important;
+}
+
+.optionMain {
+  display: flex;
+  align-items: flex-start;
+}
+
+.optionTextWrap {
+  flex: 1;
+  margin-left: $spacing-sm;
+}
+
+.optionLabel {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.optionDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-normal;
+}
+
+.switchRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.switchLabel {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  flex: 1;
+  padding-right: $spacing-sm;
+}
+
+.tagPreview {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx dashed $color-border;
+}
+
+.repairTag {
+  background: #DC2626;
+  padding: $spacing-md;
+  border-radius: $radius-sm;
+  display: inline-block;
+  transform: rotate(-1deg);
+  box-shadow: $shadow-card;
+}
+
+.tagTop {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  text-align: center;
+  display: block;
+  padding-bottom: $spacing-xs;
+  margin-bottom: $spacing-xs;
+  border-bottom: 2rpx dashed rgba(255, 255, 255, 0.5);
+  letter-spacing: 4rpx;
+}
+
+.tagLine {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  display: block;
+  line-height: 1.6;
+  font-family: 'Courier New', monospace;
+}
+
+.checklist {
+  margin-top: $spacing-md;
+  padding: $spacing-md;
+  background: #F0FDF4;
+  border-radius: $radius-sm;
+  border: 1rpx solid #BBF7D0;
+}
+
+.checkItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-xs;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.checkOk {
+  width: 36rpx;
+  height: 36rpx;
+  background: $color-success;
+  color: $color-text-white;
+  border-radius: $radius-round;
+  text-align: center;
+  line-height: 36rpx;
+  font-size: 22rpx;
+  font-weight: $font-weight-bold;
+  margin-right: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.checkText {
+  font-size: $font-size-sm;
+  color: $color-success;
+  font-weight: $font-weight-medium;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 160rpx;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: $line-height-normal;
+  padding: 0;
+}
+
+.placeholder {
+  color: $color-text-disabled;
+}
+
+.bottomPadding {
+  height: 200rpx;
+}
+
+.footerBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  background: $color-bg-card;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: $spacing-md;
+}
+
+.backBtn {
+  flex: 1;
+  height: $button-height-lg;
+  background: $color-bg-page;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-button;
+  @include flex-center;
+  transition: all $transition-base;
+
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.backText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+}
+
+.submitBtn {
+  flex: 2;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-airworthiness 0%, $color-secondary 100%);
+  border-radius: $radius-button;
+  @include flex-center;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.submitText {
+  color: $color-text-white;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+}

@@ -1,0 +1,246 @@
+@use '@/styles/variables.scss' as *;
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: $color-bg-page;
+}
+
+.stageHeader {
+  display: flex;
+  align-items: center;
+  padding: $spacing-lg $page-padding;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+}
+
+.stageBadge {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-round;
+  background: rgba(255, 255, 255, 0.2);
+  @include flex-center;
+  margin-right: $spacing-md;
+}
+
+.stageNo {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+}
+
+.stageTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+  display: block;
+}
+
+.stageSubtitle {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 4rpx;
+  display: block;
+}
+
+.formScroll {
+  flex: 1;
+  padding: $spacing-md $page-padding;
+  box-sizing: border-box;
+}
+
+.taskCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  box-shadow: $shadow-card;
+  border-left: 6rpx solid $color-warning;
+}
+
+.taskLabel {
+  display: inline-block;
+  background: $color-bg-tag-orange;
+  color: $color-warning;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  padding: 4rpx 12rpx;
+  border-radius: $radius-xs;
+  margin-bottom: $spacing-sm;
+}
+
+.taskDesc {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: $line-height-normal;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.taskMeta {
+  display: flex;
+  gap: $spacing-xl;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+}
+
+.metaLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.metaValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  margin: $spacing-md 0 $spacing-md;
+}
+
+.titleDot {
+  width: 8rpx;
+  height: 32rpx;
+  background: $color-primary;
+  border-radius: $radius-xs;
+  margin-right: $spacing-sm;
+}
+
+.titleText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.input {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  width: 100%;
+  height: 56rpx;
+  font-family: 'Courier New', monospace;
+}
+
+.placeholder {
+  color: $color-text-disabled;
+  font-family: inherit;
+}
+
+.switchRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.switchLabel {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.tagPreview {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx dashed $color-border;
+}
+
+.tagSample {
+  flex: 1;
+  padding: $spacing-sm;
+  background: #F8FAFC;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-sm;
+  text-align: center;
+}
+
+.tagValid {
+  background: $color-bg-tag-green;
+  border-color: $color-success;
+}
+
+.tagName {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.tagStatus {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-tertiary;
+}
+
+.tagValid .tagStatus {
+  color: $color-success;
+}
+
+.recordBox {
+  margin-top: $spacing-md;
+  padding: $spacing-md;
+  background: #F0FDF4;
+  border-radius: $radius-sm;
+  border: 1rpx solid #BBF7D0;
+}
+
+.recordRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-xs;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.recordLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  width: 140rpx;
+}
+
+.recordValue {
+  font-size: $font-size-sm;
+  color: $color-success;
+  font-weight: $font-weight-medium;
+}
+
+.bottomPadding {
+  height: 180rpx;
+}
+
+.footerBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  background: $color-bg-card;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.submitBtn {
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-button;
+  @include flex-center;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.submitText {
+  color: $color-text-white;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+}

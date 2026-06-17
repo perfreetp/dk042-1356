@@ -1,0 +1,198 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.95;
+  }
+}
+
+.selected {
+  border-color: $color-primary;
+  background: linear-gradient(135deg, #EFF6FF 0%, $color-bg-card 100%);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  flex: 1;
+  @include text-ellipsis;
+}
+
+.difficulty {
+  padding: 6rpx 16rpx;
+  border-radius: $radius-xs;
+  margin-left: $spacing-sm;
+}
+
+.difficultyEasy {
+  background: $color-bg-tag-green;
+  .difficultyText {
+    color: $color-success;
+  }
+}
+
+.difficultyMedium {
+  background: $color-bg-tag-orange;
+  .difficultyText {
+    color: $color-warning;
+  }
+}
+
+.difficultyHard {
+  background: $color-bg-tag-red;
+  .difficultyText {
+    color: $color-error;
+  }
+}
+
+.difficultyText {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.aircraftRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.aircraftBadge {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  padding: 6rpx 16rpx;
+  border-radius: $radius-sm;
+}
+
+.aircraftText {
+  color: $color-text-white;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+.systemText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.status {
+  padding: 6rpx 14rpx;
+  border-radius: $radius-xs;
+  margin-left: auto;
+}
+
+.statusPending {
+  background: $color-bg-tag-blue;
+  .statusText {
+    color: $color-info;
+  }
+}
+
+.statusInProgress {
+  background: $color-bg-tag-orange;
+  .statusText {
+    color: $color-warning;
+  }
+}
+
+.statusCompleted {
+  background: $color-bg-tag-green;
+  .statusText {
+    color: $color-success;
+  }
+}
+
+.statusText {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.descriptionWrap {
+  background: $color-bg-page;
+  padding: $spacing-md;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-md;
+}
+
+.description {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-normal;
+  @include text-ellipsis-multi(3);
+}
+
+.partInfo {
+  margin-bottom: $spacing-md;
+}
+
+.partItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-xs;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.partLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.partValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  font-family: 'Courier New', monospace;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.createdAt {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.actionBtn {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  padding: 12rpx 28rpx;
+  border-radius: $radius-button;
+  min-width: 160rpx;
+  @include flex-center;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.96);
+  }
+}
+
+.actionText {
+  color: $color-text-white;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
